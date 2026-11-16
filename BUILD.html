@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BUILD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a black instrument panel. Hairline grid, square corners, mono readouts;
+   the only "color" is inversion (white block, black type) marking what is active. */
+:root{
+  color-scheme: dark;
+  --ink:#000;
+  --panel:#0b0b0b;
+  --line:#2a2a2a;
+  --line-strong:#5a5a5a;
+  --dim:#8c8c8c;
+  --paper:#fff;
+  --soft:#d2d2d2;
+  --hover:#161616;
+  --lead-dim:#333;
+  --display:"Syncopate","Eurostile","Arial Black",sans-serif;
+  --body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --gut:clamp(16px,4vw,48px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--paper);outline-offset:3px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.dim{color:var(--dim)}
+.wrap{max-width:1320px;margin:0 auto;padding:0 var(--gut)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+.logo{font-family:var(--display);font-weight:700;letter-spacing:.3em;font-size:15px;text-decoration:none}
+.nav nav{display:flex;gap:clamp(12px,3vw,32px);flex-wrap:wrap}
+.nav nav a{text-decoration:none;color:var(--dim)}
+.nav nav a:hover{color:var(--paper)}
+.count-pill{border:1px solid var(--line-strong);padding:1px 7px;margin-left:6px;color:var(--paper)}
+
+/* hero */
+.hero{border-bottom:1px solid var(--line);background:
+  linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 64px,
+  linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/64px 100%;
+  background-color:var(--ink);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,transparent 0,var(--ink) 75%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;padding-top:clamp(40px,7vw,88px);padding-bottom:clamp(32px,5vw,64px);display:grid;gap:28px}
+.wordmark{font-family:var(--display);font-weight:700;font-size:clamp(64px,19vw,280px);line-height:.82;letter-spacing:-.02em;margin:0 0 0 -.04em;display:flex}
+.wordmark span{display:inline-block;animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.wordmark span:nth-child(2){animation-delay:.06s}
+.wordmark span:nth-child(3){animation-delay:.12s}
+.wordmark span:nth-child(4){animation-delay:.18s}
+.wordmark span:nth-child(5){animation-delay:.24s;color:transparent;-webkit-text-stroke:2px var(--paper)}
+@keyframes rise{from{transform:translateY(18%);clip-path:inset(0 0 100% 0)}to{transform:none;clip-path:inset(0 0 0 0)}}
+.hero-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px}
+.hero p{max-width:46ch;margin:0;font-size:clamp(17px,1.6vw,21px);color:var(--soft);text-wrap:balance}
+.readout{display:flex;flex-wrap:wrap;border:1px solid var(--line-strong);background:var(--ink)}
+.readout div{padding:12px 20px;border-right:1px solid var(--line-strong);display:grid;gap:2px}
+.readout div:last-child{border-right:0}
+.readout b{font-family:var(--mono);font-weight:500;font-size:26px;font-variant-numeric:tabular-nums}
+
+/* sections */
+section{padding:clamp(40px,6vw,80px) 0;border-bottom:1px solid var(--line)}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 20px;margin-bottom:28px}
+.sec-head h2{font-family:var(--display);font-weight:700;font-size:clamp(20px,3vw,34px);letter-spacing:.04em;margin:0;text-transform:uppercase;text-wrap:balance}
+.sec-head .step{border:1px solid var(--paper);padding:2px 8px}
+.sec-head p{margin:0;color:var(--dim);flex-basis:100%;max-width:65ch}
+
+/* profiles */
+.group-label{margin:28px 0 12px;display:flex;align-items:center;gap:14px;color:var(--dim)}
+.group-label::after{content:"";flex:1;height:1px;background:var(--line)}
+.profiles{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line)}
+.profile{flex:1 1 250px;background:var(--ink);border:0;text-align:left;padding:20px;cursor:pointer;display:grid;gap:10px;align-content:start;min-height:190px;transition:background .15s,color .15s;position:relative}
+.profile:hover{background:var(--hover)}
+.profile h3{font-family:var(--display);font-size:16px;letter-spacing:.06em;margin:0;text-transform:uppercase}
+.profile .sports{color:var(--dim)}
+.profile .why{font-size:14px;color:var(--soft);margin:0}
+.profile .target{border-top:1px solid var(--line);padding-top:10px;margin-top:auto}
+.profile[aria-pressed="true"]{background:var(--paper);color:var(--ink)}
+.profile[aria-pressed="true"] .sports,.profile[aria-pressed="true"] .why{color:var(--lead-dim)}
+.profile[aria-pressed="true"] .target{border-color:#bbb}
+.profile[aria-pressed="true"]::after{content:"ACTIVE";position:absolute;top:20px;right:20px;font-family:var(--mono);font-size:11px;letter-spacing:.12em}
+
+/* controls */
+.needs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.chip{background:transparent;border:1px solid var(--line-strong);padding:9px 14px;cursor:pointer;transition:background .15s,color .15s}
+.chip:hover{border-color:var(--paper)}
+.chip[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.dials{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line)}
+.dial{flex:1 1 220px;background:var(--panel);padding:18px 20px;display:grid;gap:10px}
+.dial label{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.dial output{font-family:var(--mono);font-size:20px;font-variant-numeric:tabular-nums;letter-spacing:0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--line-strong)}
+input[type=range]::-moz-range-track{height:1px;background:var(--line-strong)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:22px;background:var(--paper);border:0;border-radius:0;margin-top:-11px}
+input[type=range]::-moz-range-thumb{width:12px;height:22px;background:var(--paper);border:0;border-radius:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;align-items:stretch}
+.toolbar input[type=search],.toolbar select{background:var(--ink);border:1px solid var(--line-strong);border-radius:0;padding:11px 14px;min-height:46px}
+.toolbar input[type=search]{flex:1 1 260px;font-family:var(--body);font-size:16px;letter-spacing:0;text-transform:none}
+.toolbar input::placeholder{color:var(--dim)}
+.toolbar select{flex:0 1 auto}
+.btn{background:transparent;border:1px solid var(--line-strong);padding:11px 16px;cursor:pointer;min-height:46px}
+.btn:hover{border-color:var(--paper)}
+.btn.solid{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+
+/* results */
+.result-bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;margin-bottom:20px;align-items:baseline}
+.result-bar strong{font-family:var(--mono);font-weight:500;font-size:22px;letter-spacing:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:20px;align-items:start}
+.card{border:1px solid var(--line);background:var(--panel);display:grid;position:relative}
+.card::before,.card::after{content:"";position:absolute;width:10px;height:10px;border:1px solid var(--paper);pointer-events:none}
+.card::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.card::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.card-top{padding:18px 20px 14px;display:grid;gap:8px}
+.card-top .meta{display:flex;justify-content:space-between;gap:8px;color:var(--dim)}
+.card h3{font-family:var(--display);font-size:15px;line-height:1.35;letter-spacing:.03em;margin:0;text-transform:uppercase;text-wrap:balance}
+.macros{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.macros div{padding:10px 4px 10px 12px;border-right:1px solid var(--line);display:grid;gap:0;min-width:0}
+.macros div:last-child{border-right:0}
+.macros b{font-family:var(--mono);font-weight:500;font-size:19px;font-variant-numeric:tabular-nums}
+.macros span{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--dim);text-transform:uppercase}
+.macros .lead{background:var(--paper);color:var(--ink)}
+.macros .lead span{color:var(--lead-dim)}
+.density{padding:12px 20px;display:grid;gap:6px;border-bottom:1px solid var(--line)}
+.density .row{display:flex;justify-content:space-between;gap:8px;color:var(--dim)}
+.density .row b{color:var(--paper);font-weight:500}
+.bar{height:3px;background:var(--line);position:relative}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--paper)}
+.ing{padding:16px 20px}
+.ing h4,.method summary{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;margin:0 0 10px;display:flex;justify-content:space-between}
+.ing ul{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.ing li{display:flex;gap:10px;padding:6px 0;border-top:1px dashed var(--line);font-size:15px}
+.ing li:first-child{border-top:0}
+.ing li::before{content:"+";font-family:var(--mono);color:var(--dim)}
+.method{border-top:1px solid var(--line);padding:0 20px}
+.method summary{cursor:pointer;margin:0;padding:14px 0;list-style:none}
+.method summary::-webkit-details-marker{display:none}
+.method summary::after{content:"+";font-size:16px;line-height:1}
+.method[open] summary::after{content:"\2212"}
+.method ol{margin:0;padding:0 0 16px 20px;display:grid;gap:8px;font-size:15px;color:var(--soft)}
+.card .add{border:0;border-top:1px solid var(--line);background:transparent;padding:14px 20px;cursor:pointer;text-align:left;display:flex;justify-content:space-between}
+.card .add:hover{background:var(--hover)}
+.card .add[aria-pressed="true"]{background:var(--paper);color:var(--ink)}
+.empty{border:1px dashed var(--line-strong);padding:40px 24px;text-align:center;display:grid;gap:14px;justify-items:center}
+.empty p{margin:0;max-width:50ch;color:var(--soft)}
+
+/* targets */
+.calc{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line)}
+.field{flex:1 1 150px;background:var(--panel);padding:14px 16px;display:grid;gap:8px}
+.field label{color:var(--dim)}
+.field input,.field select{background:var(--ink);border:1px solid var(--line-strong);border-radius:0;padding:9px 10px;width:100%;min-height:42px;font-family:var(--mono);font-size:16px}
+.field .pair{display:flex;gap:8px}
+.tiles{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:20px}
+.tile{flex:1 1 150px;background:var(--ink);padding:16px 18px;display:grid;gap:4px;align-content:start}
+.tile b{font-family:var(--mono);font-weight:500;font-size:30px;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile.lead{background:var(--paper);color:var(--ink)}
+.tile.lead .dim{color:var(--lead-dim)}
+.tile .bar{margin-top:6px}
+.tgt-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;margin-top:18px}
+.tgt-foot p{margin:0;max-width:65ch;color:var(--soft)}
+.notes{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line)}
+.note{flex:1 1 280px;background:var(--ink);padding:20px;display:grid;gap:8px;align-content:start}
+.note b{font-family:var(--mono);font-weight:500;font-size:22px}
+.note h3{font-family:var(--display);font-size:13px;letter-spacing:.05em;text-transform:uppercase;margin:0}
+.note p{margin:0;font-size:15px;color:var(--soft)}
+#planTotals{margin:0 0 20px}
+
+/* inverted dessert section: same tokens, flipped */
+.invert{--ink:#fff;--panel:#f3f3f3;--line:#cfcfcf;--line-strong:#8a8a8a;--dim:#5a5a5a;--paper:#000;--soft:#2b2b2b;--hover:#e6e6e6;--lead-dim:#c4c4c4;
+  background:var(--ink);color:var(--paper);color-scheme:light}
+.invert :focus-visible{outline-color:#000}
+
+/* motion and character */
+#prog{position:fixed;top:0;left:0;width:100%;height:2px;background:var(--paper);transform:scaleX(0);transform-origin:left;z-index:30;pointer-events:none}
+.status{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--dim)}
+.status i{display:inline-block;width:8px;height:8px;background:var(--paper);margin-right:8px;animation:blink 1.6s steps(2,start) infinite}
+@keyframes blink{50%{opacity:.15}}
+.hero .scan{position:absolute;left:0;right:0;top:0;height:120px;background:linear-gradient(transparent,rgba(255,255,255,.07),transparent);animation:scan 7s linear infinite;pointer-events:none}
+@keyframes scan{from{transform:translateY(-120px)}to{transform:translateY(900px)}}
+.ticker{overflow:hidden;background:var(--paper);color:var(--ink);border-bottom:1px solid var(--line)}
+.ticker-track{display:flex;width:max-content;white-space:nowrap;padding:10px 0;animation:tick 45s linear infinite}
+.ticker-track span{padding:0 22px}
+.ticker-track span::after{content:"/";margin-left:44px;opacity:.4}
+@keyframes tick{to{transform:translateX(-50%)}}
+.card{animation:cardIn .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 35ms);transition:border-color .2s}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}}
+.card::before,.card::after{transition:width .2s,height .2s}
+.card:hover{border-color:var(--line-strong)}
+.card:hover::before,.card:hover::after{width:22px;height:22px}
+.bar i{animation:grow .8s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}
+@keyframes grow{from{transform:scaleX(0)}}
+.profile h3,.chip,.btn{transition:letter-spacing .2s,background .15s,color .15s,border-color .15s}
+.profile:hover h3{letter-spacing:.1em}
+.qty{display:flex;align-items:center;gap:10px;margin:0 0 10px;color:var(--dim)}
+.qty button{width:30px;height:30px;border:1px solid var(--line-strong);background:none;cursor:pointer;font-family:var(--mono)}
+.qty button:hover{border-color:var(--paper)}
+.qty b{font-family:var(--mono);font-weight:500;min-width:3ch;text-align:center;color:var(--paper)}
+.check{display:flex;align-items:center;gap:8px;cursor:pointer}
+.check input{appearance:none;-webkit-appearance:none;width:16px;height:16px;border:1px solid var(--line-strong);margin:0;cursor:pointer}
+.check input:checked{background:var(--paper);border-color:var(--paper)}
+#bdMsg{margin:0 0 18px;color:var(--soft);min-height:1.5em}
+
+/* list */
+.list-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:20px;align-items:start}
+.list-block{border:1px solid var(--line);background:var(--panel);padding:18px 20px}
+.list-block h3{font-family:var(--display);font-size:13px;letter-spacing:.04em;text-transform:uppercase;margin:0 0 12px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.list-block h3 button{background:none;border:0;color:var(--dim);cursor:pointer;padding:0;flex:none}
+.list-block h3 button:hover{color:var(--paper)}
+.list-block label{display:flex;gap:10px;padding:6px 0;font-size:15px;cursor:pointer;align-items:flex-start}
+.list-block input{appearance:none;-webkit-appearance:none;width:16px;height:16px;border:1px solid var(--line-strong);margin:3px 0 0;flex:none;cursor:pointer}
+.list-block input:checked{background:var(--paper);border-color:var(--paper)}
+.list-block input:checked + span{color:var(--dim);text-decoration:line-through}
+.list-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+
+footer{padding:32px 0 56px;color:var(--dim);font-size:14px}
+footer p{max-width:75ch;margin:0 0 8px}
+@media (max-width:520px){
+  .macros b{font-size:16px}
+  .macros div{padding-left:8px}
+  .readout div{padding:10px 14px}
+  .nav nav a.opt{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .wordmark span,.card,.bar i,.ticker-track,.status i,.hero .scan{animation:none}
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top">BUILD</a>
+    <nav class="mono">
+      <a href="#targets">Targets</a>
+      <a class="opt" href="#profiles">Profiles</a>
+      <a class="opt" href="#dial">Macros</a>
+      <a href="#recipes">Recipes</a>
+      <a href="#dessert">Dessert</a>
+      <a href="#list">Plan<span class="count-pill" id="navCount">0</span></a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="scan" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="mono status"><span><i></i>Kitchen online</span><span id="statusCount"></span><span>Zero junk detected</span></div>
+    <h1 class="wordmark" aria-label="BUILD"><span>B</span><span>U</span><span>I</span><span>L</span><span>D</span></h1>
+    <div class="hero-row">
+      <p>High-protein, low-calorie recipes sorted by what your training needs. Set your targets, pick a profile, check the price, read the ingredients, cook. Abs are built in here. The gym just reveals them.</p>
+      <div class="readout" aria-label="Library stats">
+        <div><b id="statRecipes">0</b><span class="mono dim">Recipes</span></div>
+        <div><b id="statProtein">0</b><span class="mono dim">Avg g protein</span></div>
+        <div><b id="statKcal">0</b><span class="mono dim">Avg kcal</span></div>
+        <div><b id="statCost">0</b><span class="mono dim">Avg cost a serving</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ticker" aria-hidden="true"><div class="ticker-track mono" id="ticker"></div></div>
+
+<main>
+<section id="targets">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono step">01</span>
+      <h2>Set your daily targets</h2>
+      <p>Enter your numbers to get a daily calorie and macro target, then load meals sized to fit it. The figures shown are an example until you change them.</p>
+    </div>
+    <form class="calc" id="calc">
+      <div class="field"><label class="mono" for="u">Units</label><select id="u"><option value="us">lb / ft</option><option value="si">kg / cm</option></select></div>
+      <div class="field"><label class="mono" for="sex">Sex</label><select id="sex"><option value="m">Male</option><option value="f">Female</option></select></div>
+      <div class="field"><label class="mono" for="age">Age</label><input id="age" type="number" inputmode="numeric" min="16" max="90" value="30"></div>
+      <div class="field"><label class="mono" for="h1" id="hLabel">Height ft / in</label><div class="pair"><input id="h1" type="number" inputmode="numeric" value="5" aria-label="Height, feet or centimeters"><input id="h2" type="number" inputmode="numeric" value="10" aria-label="Height, inches"></div></div>
+      <div class="field"><label class="mono" for="w" id="wLabel">Weight lb</label><input id="w" type="number" inputmode="decimal" value="180"></div>
+      <div class="field"><label class="mono" for="act">Training</label><select id="act">
+        <option value="1.2">Desk job, no training</option><option value="1.375">1 to 3 sessions a week</option><option value="1.55" selected>3 to 5 sessions a week</option><option value="1.725">6 to 7 sessions a week</option><option value="1.9">Two-a-days or manual job</option></select></div>
+      <div class="field"><label class="mono" for="goal">Goal</label><select id="goal">
+        <option value="cut">Cut (20% deficit)</option><option value="recomp">Recomp (10% deficit)</option><option value="maintain" selected>Maintain</option><option value="bulk">Lean bulk (10% surplus)</option><option value="mass">Mass gain (15% surplus)</option></select></div>
+      <div class="field"><label class="mono" for="meals">Meals a day</label><select id="meals"><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div>
+    </form>
+    <div class="tiles" id="tgtOut"></div>
+    <div class="tgt-foot">
+      <p id="perMeal"></p>
+      <button class="btn solid mono" id="fit" type="button">Show meals that fit</button>
+    </div>
+  </div>
+</section>
+
+<section id="profiles">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono step">02</span>
+      <h2>Pick your profile</h2>
+      <p>Each profile loads a macro preset for one serving. Tap it again to clear it.</p>
+    </div>
+    <div class="mono group-label">Meatheads · builds and goals</div>
+    <div class="profiles" id="profMeat"></div>
+    <div class="mono group-label">Athletes by sport</div>
+    <div class="profiles" id="profSport"></div>
+  </div>
+</section>
+
+<section id="dial">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono step">03</span>
+      <h2>Or dial your macros</h2>
+      <p>Jump to a single need, or move the sliders to set your own limits per serving.</p>
+    </div>
+    <div class="needs" id="needs"></div>
+    <div class="dials">
+      <div class="dial"><label class="mono" for="pMin">Protein at least <output id="pMinOut"></output></label><input type="range" id="pMin" min="0" max="60" step="5"></div>
+      <div class="dial"><label class="mono" for="kMax">Calories at most <output id="kMaxOut"></output></label><input type="range" id="kMax" min="250" max="650" step="10"></div>
+      <div class="dial"><label class="mono" for="fMin">Fiber at least <output id="fMinOut"></output></label><input type="range" id="fMin" min="0" max="16" step="1"></div>
+      <div class="dial"><label class="mono" for="cMin">Carbs at least <output id="cMinOut"></output></label><input type="range" id="cMin" min="0" max="80" step="5"></div>
+      <div class="dial"><label class="mono" for="cMax">Carbs at most <output id="cMaxOut"></output></label><input type="range" id="cMax" min="5" max="90" step="5"></div>
+      <div class="dial"><label class="mono" for="dMax">Meal price at most <output id="dMaxOut"></output></label><input type="range" id="dMax" min="1.5" max="12" step="0.5"></div>
+    </div>
+    <div class="toolbar">
+      <input class="mono" type="search" id="q" placeholder="Search a recipe or an ingredient, like salmon or oats" aria-label="Search recipes and ingredients">
+      <select class="mono" id="meal" aria-label="Meal">
+        <option value="">All meals</option>
+        <option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option>
+      </select>
+      <select class="mono" id="diet" aria-label="Diet">
+        <option value="">Any diet</option>
+        <option value="veg">Vegetarian</option>
+        <option value="pesc">Pescatarian</option>
+      </select>
+      <select class="mono" id="sort" aria-label="Sort by">
+        <option value="density">Sort: protein per 100 kcal</option>
+        <option value="p">Sort: most protein</option>
+        <option value="k">Sort: fewest calories</option>
+        <option value="fb">Sort: most fiber</option>
+        <option value="cLow">Sort: fewest carbs</option>
+        <option value="cHigh">Sort: most carbs</option>
+        <option value="t">Sort: fastest</option>
+        <option value="cheap">Sort: lowest meal price</option>
+        <option value="value">Sort: cheapest protein</option>
+      </select>
+      <button class="btn mono" id="reset" type="button">Reset filters</button>
+    </div>
+  </div>
+</section>
+
+<section id="recipes">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono step">04</span>
+      <h2>Recipes</h2>
+    </div>
+    <div class="result-bar">
+      <div><strong id="resCount">0</strong> <span class="mono dim" id="resLabel">matches</span></div>
+      <div class="mono dim" id="resSummary"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div id="more" style="display:flex;justify-content:center;margin-top:28px"></div>
+  </div>
+</section>
+
+<section id="dessert" class="invert">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono step">05</span>
+      <h2>Kill the sweet tooth</h2>
+      <p>Twenty desserts with at least 17 g of protein each. The craving gets handled and the macros survive. Pick what you are craving.</p>
+    </div>
+    <div class="needs" id="crave"></div>
+    <div class="grid" id="dgrid"></div>
+  </div>
+</section>
+
+<section id="list">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono step">06</span>
+      <h2>Plan and shopping list</h2>
+      <p>Add recipes above to total a day of eating against your targets and collect the ingredients. Tick items off as you shop. Saved in this browser only.</p>
+    </div>
+    <p id="bdMsg">Build my day picks a full day of meals that lands close to your daily targets and adjusts the servings. Press it again for a different day.</p>
+    <div id="planTotals"></div>
+    <div class="list-actions">
+      <button class="btn solid mono" id="buildDay" type="button">Build my day</button>
+      <label class="check mono" for="bdDessert"><input type="checkbox" id="bdDessert" checked>Include a dessert</label>
+      <button class="btn mono" id="copyList" type="button">Copy list</button>
+      <button class="btn mono" id="clearList" type="button">Clear list</button>
+    </div>
+    <div class="list-wrap" id="listWrap"></div>
+  </div>
+</section>
+<section id="notes">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono step">07</span>
+      <h2>What moves the needle</h2>
+      <p>Six habits that sports nutrition research keeps coming back to. The recipes handle the food. These handle the rest.</p>
+    </div>
+    <div class="notes">
+      <div class="note"><b>0.7–1 g / lb</b><h3>Hit protein daily</h3><p>That is 1.6 to 2.2 g per kg of body weight a day. Go to the top of the range when you are cutting.</p></div>
+      <div class="note"><b>25–40 g × 3–5</b><h3>Spread it out</h3><p>Split protein over three to five meals instead of one huge dinner. Most recipes here land in that window.</p></div>
+      <div class="note"><b>± 10–20%</b><h3>Keep the change small</h3><p>A modest deficit protects muscle and a modest surplus limits fat gain. Aim to lose about 0.5 to 1% of body weight a week, or gain about 0.25 to 0.5%.</p></div>
+      <div class="note"><b>1–4 h before</b><h3>Put carbs near training</h3><p>Eat a carb-heavy meal one to four hours before hard sessions, and carbs plus protein afterward when you train again within a day.</p></div>
+      <div class="note"><b>14 g / 1,000 kcal</b><h3>Eat your fiber</h3><p>Fiber keeps you full in a deficit. Raise it gradually and keep it lower in the meal right before competition.</p></div>
+      <div class="note"><b>7–9 h</b><h3>Sleep and track the trend</h3><p>Short sleep blunts recovery and raises appetite. Judge progress by your weekly average weight, not one morning.</p></div>
+    </div>
+  </div>
+</section>
+<section id="swaps">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono step">08</span>
+      <h2>Smart swaps</h2>
+      <p>Missing an ingredient, or need to trim or add calories? These trades keep the recipe working.</p>
+    </div>
+    <div class="notes">
+      <div class="note"><h3>No protein powder</h3><p>Stir in 3/4 cup nonfat Greek yogurt for about 17 g of protein, or use a plant protein powder scoop for scoop.</p></div>
+      <div class="note"><h3>No carton egg whites</h3><p>Use 2 whole eggs for each 1/2 cup. Protein stays about the same and you add roughly 80 kcal of fat.</p></div>
+      <div class="note"><h3>Cut the carbs</h3><p>Trade 1 cup of cooked rice for cauliflower rice and save about 180 kcal. Lettuce cups in place of two corn tortillas save about 100.</p></div>
+      <div class="note"><h3>Add calories for a bulk</h3><p>Double the rice, pasta or potato, or add a tablespoon of olive oil for about 120 kcal without changing the recipe.</p></div>
+      <div class="note"><h3>Change the protein</h3><p>Chicken breast, turkey breast, pork tenderloin and white fish trade weight for weight. Extra-firm tofu works in any bowl or stir-fry.</p></div>
+      <div class="note"><h3>Dairy-free</h3><p>Soy yogurt and soy milk come closest on protein. Blend firm tofu with lemon and salt to stand in for cottage cheese.</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Macros are per serving and estimated from standard nutrition values for the listed ingredients. Brands vary, so weigh your food and check labels if you need exact numbers.</p>
+    <p>Meal prices are rough estimates for the ingredient amounts each recipe uses, whole batch included, at US average grocery prices in late 2026. Chicken, ground beef, eggs, milk and bread follow Bureau of Labor Statistics averages for September 2026, and other items are estimated. Pantry spices are not counted. Your store will differ.</p>
+    <p>Daily targets use the Mifflin-St Jeor equation and are a starting estimate. Adjust them by how your weight actually trends over two to three weeks.</p>
+    <p>Profiles, targets and notes are general starting points, not medical or dietetic advice. Weight cuts for combat sports should be planned with a coach or dietitian.</p>
+  </div>
+</footer>
+
+<script>
+/* ---------- data ---------- */
+const R = [
+ {id:"skillet",n:"Egg White & Turkey Skillet",meal:"Breakfast",t:12,k:290,p:53,c:9,f:3,fb:2,serves:1,
+  ing:["1 cup liquid egg whites","4 oz 99% lean ground turkey","1 cup baby spinach","1/2 bell pepper, diced","2 tbsp salsa","Cooking spray, salt, pepper"],
+  steps:["Brown the turkey in a sprayed nonstick pan over medium-high heat, 4 minutes.","Add the pepper and spinach and cook until the spinach wilts.","Pour in the egg whites, stir until just set, and top with salsa."]},
+ {id:"yogurt",n:"Greek Yogurt Protein Bowl",meal:"Breakfast",t:5,k:290,p:37,c:25,f:5,fb:8,serves:1,
+  ing:["1 cup nonfat plain Greek yogurt","1/2 scoop vanilla whey protein","1/2 cup mixed berries","1 tbsp chia seeds"],
+  steps:["Stir the whey into the yogurt until smooth.","Top with berries and chia."]},
+ {id:"proats",n:"Overnight Protein Oats",meal:"Breakfast",t:5,k:410,p:33,c:50,f:9,fb:11,serves:1,
+  ing:["1/2 cup rolled oats","1 scoop whey protein","1 tbsp chia seeds","1 cup unsweetened almond milk","1/2 banana, sliced"],
+  steps:["Shake the oats, whey, chia and milk in a jar.","Refrigerate overnight, or at least 4 hours.","Top with banana and eat cold."]},
+ {id:"pancakes",n:"Cottage Cheese Pancakes",meal:"Breakfast",t:15,k:370,p:29,c:35,f:13,fb:5,serves:1,
+  ing:["1/2 cup low-fat cottage cheese","2 large eggs","1/3 cup rolled oats","1/2 tsp cinnamon","1/2 cup berries","Cooking spray"],
+  steps:["Blend the cottage cheese, eggs, oats and cinnamon until smooth.","Cook small pancakes in a sprayed pan over medium heat, about 2 minutes a side.","Serve with berries."]},
+ {id:"eggoats",n:"Egg White Banana Oatmeal",meal:"Breakfast",t:8,k:410,p:26,c:72,f:3,fb:7,serves:1,
+  ing:["1/2 cup rolled oats","3/4 cup liquid egg whites","1 banana, mashed","1 tbsp honey","1 cup water","Cinnamon, pinch of salt"],
+  steps:["Simmer the oats in the water for 3 minutes.","Turn the heat to low and whisk in the egg whites for 2 minutes, until fluffy.","Stir in the banana and cinnamon, then drizzle with honey."]},
+ {id:"btacos",n:"Black Bean & Egg Breakfast Tacos",meal:"Breakfast",t:10,k:420,p:35,c:44,f:12,fb:10,serves:1,
+  ing:["2 large eggs","1/2 cup liquid egg whites","1/2 cup canned black beans, rinsed","2 corn tortillas","2 tbsp salsa","Cilantro, lime"],
+  steps:["Scramble the eggs and egg whites together.","Warm the beans and char the tortillas in a dry pan.","Fill the tortillas and finish with salsa, cilantro and lime."]},
+ {id:"burrito",n:"Chicken Burrito Bowl",meal:"Lunch",t:20,k:510,p:62,c:48,f:8,fb:9,serves:1,
+  ing:["6 oz cooked chicken breast, diced","1/2 cup cooked rice","1/2 cup canned black beans, rinsed","1 cup shredded romaine","1/4 cup salsa","1/2 lime","Chili powder, cumin, salt"],
+  steps:["Toss the chicken with chili powder, cumin and salt, then sear until hot.","Warm the rice and beans.","Build the bowl over romaine and top with salsa and lime."]},
+ {id:"tuna",n:"Tuna & White Bean Salad",meal:"Lunch",t:8,k:300,p:35,c:26,f:6,fb:8,serves:1,
+  ing:["1 can (5 oz) tuna in water, drained","1/2 cup canned cannellini beans, rinsed","1 cup cherry tomatoes, halved","2 tbsp red onion, minced","2 cups arugula","1 tsp olive oil","1/2 lemon, salt, pepper"],
+  steps:["Toss the tuna, beans, tomatoes and onion with oil and lemon.","Season and pile onto the arugula."]},
+ {id:"buffalo",n:"Buffalo Chicken Lettuce Wraps",meal:"Lunch",t:10,k:300,p:54,c:4,f:6,fb:1,serves:1,
+  ing:["6 oz cooked chicken breast, shredded","2 tbsp hot sauce","2 tbsp nonfat Greek yogurt","1 celery stalk, diced","4 butter lettuce leaves"],
+  steps:["Mix the chicken with hot sauce and yogurt.","Spoon into lettuce leaves and top with celery."]},
+ {id:"kale",n:"Chicken, Chickpea & Kale Salad",meal:"Lunch",t:12,k:440,p:53,c:27,f:13,fb:8,serves:1,
+  ing:["5 oz cooked chicken breast, sliced","1/2 cup canned chickpeas, rinsed","2 cups chopped kale","1 tbsp grated Parmesan","1 tsp olive oil","1/2 lemon, salt, pepper"],
+  steps:["Massage the kale with oil, lemon and salt for a minute until it softens.","Add the chicken and chickpeas and finish with Parmesan."]},
+ {id:"tofu",n:"Tofu Edamame Power Bowl",meal:"Lunch",t:20,k:400,p:34,c:33,f:16,fb:8,serves:1,
+  ing:["7 oz extra-firm tofu, cubed","1/2 cup shelled edamame","1/2 cup cooked quinoa","1/2 cucumber, sliced","1 tbsp soy sauce","1 tsp rice vinegar","Cooking spray"],
+  steps:["Press the tofu dry and crisp it in a sprayed pan, 8 minutes.","Warm the edamame and quinoa.","Build the bowl and dress with soy and vinegar."]},
+ {id:"fishtacos",n:"Cod Fish Tacos",meal:"Dinner",t:15,k:290,p:35,c:30,f:3,fb:5,serves:1,
+  ing:["6 oz cod fillet","2 corn tortillas","1 cup shredded cabbage","2 tbsp nonfat Greek yogurt","1/2 lime","2 tbsp salsa","Chili powder, garlic powder, salt"],
+  steps:["Season the cod and sear 3 minutes a side until it flakes.","Stir the yogurt with lime juice to make a crema.","Fill warm tortillas with cod, cabbage, crema and salsa."]},
+ {id:"shrimp",n:"Shrimp Zucchini Noodle Stir-Fry",meal:"Dinner",t:15,k:300,p:40,c:14,f:7,fb:4,serves:1,
+  ing:["8 oz raw shrimp, peeled","2 medium zucchini, spiralized","2 garlic cloves, minced","1 tbsp soy sauce","1 tsp sesame oil","Chili flakes"],
+  steps:["Sear the shrimp in sesame oil for 2 minutes a side, then set aside.","Cook the garlic for 30 seconds and toss in the zucchini for 2 minutes.","Return the shrimp, add soy and chili flakes, and serve at once."]},
+ {id:"chili",n:"Turkey Chili",meal:"Dinner",t:40,k:390,p:37,c:36,f:11,fb:10,serves:4,
+  ing:["1.25 lb 93% lean ground turkey","1 can (15 oz) kidney beans, rinsed","1 can (28 oz) crushed tomatoes","1 onion, diced","2 garlic cloves, minced","2 tbsp chili powder","1 tsp cumin, salt"],
+  steps:["Brown the turkey with the onion and garlic in a large pot.","Stir in the spices, tomatoes and beans.","Simmer 25 minutes. Makes 4 servings and freezes well."]},
+ {id:"salmon",n:"Sheet-Pan Salmon & Broccoli",meal:"Dinner",t:20,k:390,p:34,c:12,f:23,fb:5,serves:1,
+  ing:["5 oz salmon fillet","2 cups broccoli florets","1 tsp olive oil","1/2 lemon","Garlic powder, salt, pepper"],
+  steps:["Heat the oven to 425°F (220°C).","Toss the broccoli with oil and seasoning and roast 8 minutes.","Add the salmon, roast 10 more minutes, and finish with lemon."]},
+ {id:"steak",n:"Sirloin & Sweet Potato Plate",meal:"Dinner",t:30,k:420,p:44,c:34,f:11,fb:7,serves:1,
+  ing:["6 oz raw top sirloin, trimmed","1 medium sweet potato","1 cup green beans","Cooking spray","Salt, pepper, garlic powder"],
+  steps:["Microwave the sweet potato 6 to 8 minutes until soft.","Sear the steak 3 to 4 minutes a side, then rest it 5 minutes.","Blister the green beans in the same pan and plate everything."]},
+ {id:"chickrice",n:"Chicken, Rice & Broccoli",meal:"Dinner",t:25,k:520,p:58,c:51,f:7,fb:3,serves:1,
+  ing:["6 oz cooked chicken breast","1 cup cooked white rice","1 cup broccoli florets","1 tbsp low-sodium soy sauce","Garlic powder, pepper"],
+  steps:["Season and grill or pan-sear the chicken.","Steam the broccoli for 4 minutes.","Serve over rice with soy sauce. Scales to a week of meal prep."]},
+ {id:"lentil",n:"Lentil & Chicken Sausage Soup",meal:"Dinner",t:35,k:400,p:33,c:48,f:8,fb:17,serves:1,
+  ing:["1/2 cup dry brown lentils","1 chicken sausage link, sliced","1 carrot, diced","1 celery stalk, diced","1 cup baby spinach","2 cups low-sodium chicken broth","1 garlic clove, thyme"],
+  steps:["Brown the sausage, then add the carrot, celery and garlic for 3 minutes.","Add the lentils, broth and thyme and simmer 25 minutes.","Stir in the spinach until it wilts."]},
+ {id:"eggroll",n:"Egg Roll in a Bowl",meal:"Dinner",t:15,k:330,p:31,c:16,f:16,fb:5,serves:1,
+  ing:["5 oz 93% lean ground turkey","3 cups coleslaw mix","1 tbsp soy sauce","1 tsp sesame oil","1 tsp grated ginger","1 garlic clove, minced","1 scallion, sliced"],
+  steps:["Brown the turkey with ginger and garlic.","Add the coleslaw mix and soy and cook 4 minutes until just tender.","Finish with sesame oil and scallion."]},
+ {id:"ppasta",n:"Chickpea Pasta with Turkey Marinara",meal:"Dinner",t:20,k:390,p:39,c:47,f:7,fb:8,serves:1,
+  ing:["2 oz dry chickpea pasta","4 oz 99% lean ground turkey","1/2 cup marinara sauce","1 cup baby spinach","Italian seasoning, chili flakes"],
+  steps:["Boil the pasta according to the box.","Brown the turkey with the seasoning, then add the marinara and spinach.","Toss the pasta through the sauce."]},
+ {id:"burger",n:"Lean Burger Bowl",meal:"Dinner",t:25,k:370,p:39,c:30,f:10,fb:4,serves:1,
+  ing:["5 oz 96% lean ground beef","1 small potato (5 oz), cubed","2 cups shredded lettuce","1 tomato, diced","Dill pickle slices","1 slice reduced-fat cheddar","Yellow mustard, cooking spray"],
+  steps:["Roast or air-fry the sprayed potato cubes at 425°F (220°C) for 18 minutes.","Brown the beef and melt the cheese on top.","Serve over lettuce with tomato, pickles, potatoes and mustard."]},
+ {id:"teriyaki",n:"Teriyaki Chicken Rice Bowl",meal:"Dinner",t:20,k:600,p:50,c:81,f:6,fb:3,serves:1,
+  ing:["5 oz cooked chicken breast, sliced","1.5 cups cooked jasmine rice","1/2 cup carrots, sliced","2 tbsp teriyaki sauce","1 scallion, sliced"],
+  steps:["Steam the carrots until tender.","Warm the chicken in the teriyaki sauce.","Serve over rice with scallion. Eat 3 to 4 hours before a long session."]},
+ {id:"carbpasta",n:"Carb-Load Pasta with Chicken & Peas",meal:"Dinner",t:20,k:630,p:52,c:86,f:8,fb:9,serves:1,
+  ing:["3 oz dry pasta","4 oz cooked chicken breast, diced","1/2 cup frozen peas","1/2 cup marinara sauce","Basil, black pepper"],
+  steps:["Boil the pasta and add the peas for the last minute.","Warm the chicken in the marinara.","Toss together and finish with basil."]},
+ {id:"smoothie",n:"Cherry Recovery Smoothie",meal:"Snack",t:3,k:360,p:33,c:53,f:2,fb:5,serves:1,
+  ing:["1 scoop whey protein","1 banana","1/2 cup frozen tart cherries","1 cup skim milk","Ice"],
+  steps:["Blend everything until smooth.","Drink within an hour of finishing training."]},
+ {id:"dip",n:"Cottage Cheese Ranch Dip & Veg",meal:"Snack",t:5,k:240,p:26,c:22,f:5,fb:4,serves:1,
+  ing:["1 cup low-fat cottage cheese","1 tsp ranch seasoning","1 carrot, cut into sticks","1/2 cucumber, sliced","1/2 bell pepper, sliced"],
+  steps:["Blend the cottage cheese with the ranch seasoning until smooth.","Serve with the vegetables."]},
+ {id:"chia",n:"Protein Chia Pudding",meal:"Snack",t:5,k:360,p:31,c:26,f:14,fb:16,serves:1,
+  ing:["3 tbsp chia seeds","1 scoop whey protein","1 cup unsweetened almond milk","1/2 cup raspberries"],
+  steps:["Whisk the whey into the milk, then stir in the chia.","Refrigerate at least 2 hours, stirring once after 10 minutes.","Top with raspberries."]},
+
+ /* ----- breakfast ----- */
+ {id:"frenchtoast",n:"Protein French Toast",meal:"Breakfast",t:12,k:320,p:34,c:41,f:4,fb:6,serves:1,
+  ing:["2 slices whole-wheat bread","1/2 cup liquid egg whites","1/2 scoop vanilla whey protein","1/2 tsp cinnamon","1/2 cup mixed berries","Cooking spray"],
+  steps:["Whisk the egg whites, whey and cinnamon in a shallow dish.","Soak the bread for 20 seconds a side.","Cook in a sprayed pan 2 to 3 minutes a side and top with berries."]},
+ {id:"lox",n:"Smoked Salmon Egg White Scramble",meal:"Breakfast",t:8,k:270,p:40,c:16,f:4,fb:2,serves:1,
+  ing:["1 cup liquid egg whites","2 oz smoked salmon, torn","1 slice whole-wheat toast","1 tbsp chives, chopped","Cooking spray, black pepper"],
+  steps:["Scramble the egg whites in a sprayed pan over medium-low heat.","Fold in the salmon and chives off the heat.","Serve on the toast with black pepper."]},
+ {id:"bburrito",n:"Turkey Sausage Breakfast Burrito",meal:"Breakfast",t:10,k:340,p:40,c:22,f:14,fb:11,serves:1,
+  ing:["1 large low-carb high-fiber tortilla","2 turkey sausage links, sliced","3/4 cup liquid egg whites","1/4 cup reduced-fat shredded cheese","2 tbsp salsa"],
+  steps:["Brown the sausage, then scramble the egg whites in the same pan.","Fill the tortilla with eggs, sausage, cheese and salsa.","Roll it up and toast it seam-side down for 1 minute."]},
+ {id:"waffle",n:"Protein Waffle with Strawberries",meal:"Breakfast",t:10,k:310,p:32,c:40,f:3,fb:6,serves:1,
+  ing:["1/2 cup protein pancake mix","1/2 scoop whey protein","1/3 cup water","1/4 cup nonfat Greek yogurt","1/2 cup strawberries, sliced","Cooking spray"],
+  steps:["Stir the mix, whey and water into a thick batter.","Cook in a sprayed waffle iron until crisp.","Top with yogurt and strawberries."]},
+ {id:"muffincups",n:"Veggie Egg Muffin Cups",meal:"Breakfast",t:25,k:260,p:29,c:5,f:14,fb:1,serves:1,
+  ing:["2 large eggs","1/2 cup liquid egg whites","1/2 cup baby spinach, chopped","1/4 bell pepper, diced","2 tbsp crumbled feta","Cooking spray, salt, pepper"],
+  steps:["Heat the oven to 375°F (190°C) and spray 3 muffin cups.","Divide the vegetables and feta between the cups and pour over the whisked eggs.","Bake 18 minutes until set. They keep 4 days in the fridge."]},
+ {id:"cottoast",n:"Savory Cottage Cheese Toast",meal:"Breakfast",t:5,k:310,p:27,c:38,f:6,fb:5,serves:1,
+  ing:["2 slices whole-wheat bread, toasted","3/4 cup low-fat cottage cheese","1 tomato, sliced","Everything bagel seasoning"],
+  steps:["Spread the cottage cheese over the toast.","Top with tomato and seasoning."]},
+ {id:"hash",n:"Steak & Egg White Hash",meal:"Breakfast",t:20,k:380,p:43,c:30,f:8,fb:4,serves:1,
+  ing:["4 oz raw top sirloin, diced","1/2 cup liquid egg whites","1 small potato (5 oz), diced small","1/4 onion, diced","1/4 bell pepper, diced","Cooking spray, salt, paprika"],
+  steps:["Microwave the potato 3 minutes, then crisp it in a sprayed pan with the onion and pepper.","Add the steak and sear 3 minutes.","Push everything aside, scramble the egg whites, and toss together."]},
+ {id:"parfait",n:"Bran & Raspberry Yogurt Parfait",meal:"Breakfast",t:3,k:240,p:27,c:39,f:1,fb:14,serves:1,
+  ing:["1 cup nonfat plain Greek yogurt","1/2 cup high-fiber bran cereal","1/2 cup raspberries"],
+  steps:["Layer the yogurt, cereal and raspberries in a glass.","Eat right away so the cereal stays crunchy."]},
+ {id:"bagel",n:"Turkey & Egg White Bagel",meal:"Breakfast",t:8,k:420,p:39,c:56,f:3,fb:3,serves:1,
+  ing:["1 plain bagel, toasted","3 oz deli turkey breast","1/2 cup liquid egg whites","1 handful baby spinach","Yellow mustard, cooking spray"],
+  steps:["Cook the egg whites into a flat patty in a sprayed pan.","Stack the turkey, egg and spinach on the bagel with mustard."]},
+
+ /* ----- lunch ----- */
+ {id:"wrap",n:"Turkey & Hummus Wrap",meal:"Lunch",t:5,k:260,p:28,c:26,f:10,fb:12,serves:1,
+  ing:["1 large low-carb high-fiber tortilla","4 oz deli turkey breast","2 tbsp hummus","1 handful baby spinach","1/2 tomato, sliced","1/4 cucumber, sliced"],
+  steps:["Spread the hummus over the tortilla.","Layer on the turkey and vegetables and roll tightly."]},
+ {id:"caesar",n:"Chicken Caesar with Yogurt Dressing",meal:"Lunch",t:10,k:350,p:60,c:8,f:9,fb:3,serves:1,
+  ing:["6 oz cooked chicken breast, sliced","3 cups chopped romaine","2 tbsp grated Parmesan","3 tbsp nonfat Greek yogurt","1/2 lemon","1 small garlic clove, grated","1 tsp Dijon mustard"],
+  steps:["Whisk the yogurt, lemon juice, garlic, mustard and half the Parmesan.","Toss the romaine in the dressing.","Top with chicken and the rest of the Parmesan."]},
+ {id:"ceviche",n:"Shrimp & Avocado Lime Bowl",meal:"Lunch",t:10,k:260,p:42,c:12,f:6,fb:5,serves:1,
+  ing:["6 oz cooked shrimp, chopped","1 tomato, diced","1/2 cucumber, diced","2 tbsp red onion, minced","1/4 avocado, diced","1 lime","Cilantro, salt, hot sauce"],
+  steps:["Toss the shrimp and vegetables with lime juice and salt.","Fold in the avocado and cilantro.","Chill 10 minutes if you have time."]},
+ {id:"chxsandwich",n:"Chicken Salad Sandwich",meal:"Lunch",t:8,k:420,p:55,c:31,f:7,fb:5,serves:1,
+  ing:["5 oz cooked chicken breast, shredded","3 tbsp nonfat Greek yogurt","1 celery stalk, diced","1 tsp Dijon mustard","2 slices whole-wheat bread","Lettuce, salt, pepper"],
+  steps:["Mix the chicken, yogurt, celery and mustard.","Season and pile onto the bread with lettuce."]},
+ {id:"salmonbowl",n:"Salmon Rice Bowl",meal:"Lunch",t:20,k:440,p:31,c:40,f:17,fb:3,serves:1,
+  ing:["4 oz salmon fillet","3/4 cup cooked rice","1/4 cup shelled edamame","1/2 cucumber, sliced","1 tbsp soy sauce","Sriracha"],
+  steps:["Bake or air-fry the salmon at 400°F (200°C) for 10 minutes.","Flake it over the rice with the edamame and cucumber.","Finish with soy and sriracha."]},
+ {id:"tacosalad",n:"Turkey Taco Salad",meal:"Lunch",t:12,k:290,p:43,c:20,f:5,fb:6,serves:1,
+  ing:["5 oz 99% lean ground turkey","1 tbsp taco seasoning","3 cups chopped romaine","1/4 cup canned black beans, rinsed","1/4 cup salsa","2 tbsp reduced-fat shredded cheese","2 tbsp nonfat Greek yogurt"],
+  steps:["Brown the turkey with the taco seasoning and a splash of water.","Pile it over the romaine with beans and cheese.","Top with salsa and yogurt."]},
+ {id:"eggsalad",n:"Egg Salad Lettuce Cups",meal:"Lunch",t:15,k:210,p:26,c:3,f:10,fb:1,serves:1,
+  ing:["2 hard-boiled eggs","3 hard-boiled egg whites","2 tbsp nonfat Greek yogurt","1 tsp yellow mustard","4 butter lettuce leaves","Paprika, salt, pepper"],
+  steps:["Chop the eggs and whites and mix with yogurt and mustard.","Season and spoon into the lettuce leaves."]},
+ {id:"greekbowl",n:"Chicken Quinoa Greek Bowl",meal:"Lunch",t:15,k:430,p:51,c:26,f:14,fb:5,serves:1,
+  ing:["5 oz cooked chicken breast, sliced","1/2 cup cooked quinoa","1/2 cucumber, diced","1 tomato, diced","2 tbsp crumbled feta","5 olives, halved","1/2 lemon, oregano"],
+  steps:["Build the bowl with quinoa, chicken and vegetables.","Top with feta and olives and squeeze over the lemon."]},
+ {id:"poke",n:"Ahi Tuna Poke Bowl",meal:"Lunch",t:10,k:410,p:43,c:40,f:8,fb:3,serves:1,
+  ing:["5 oz sushi-grade ahi tuna, cubed","3/4 cup cooked rice","1/4 cup shelled edamame","1/2 cucumber, diced","1 tbsp soy sauce","1 tsp sesame oil","1 scallion, sliced"],
+  steps:["Toss the tuna with soy, sesame oil and scallion.","Serve over rice with the edamame and cucumber."]},
+ {id:"lentilegg",n:"Lentil, Egg & Spinach Bowl",meal:"Lunch",t:10,k:330,p:27,c:33,f:11,fb:12,serves:1,
+  ing:["3/4 cup cooked lentils","2 hard-boiled eggs, halved","2 cups baby spinach","1 tomato, diced","1 tsp Dijon mustard","1 tbsp red wine vinegar"],
+  steps:["Whisk the mustard and vinegar and toss with the warm lentils.","Serve over spinach with the tomato and eggs."]},
+ {id:"rollups",n:"Turkey & Swiss Roll-Ups",meal:"Lunch",t:5,k:240,p:39,c:5,f:8,fb:0,serves:1,
+  ing:["5 oz deli turkey breast","2 slices reduced-fat Swiss cheese","4 dill pickle spears","Yellow mustard"],
+  steps:["Lay out the turkey and add a strip of cheese and a pickle spear to each.","Add mustard and roll up."]},
+ {id:"noodlesoup",n:"Chicken Noodle Soup",meal:"Lunch",t:20,k:380,p:49,c:27,f:7,fb:3,serves:1,
+  ing:["5 oz cooked chicken breast, shredded","1 oz dry egg noodles","1 carrot, sliced","1 celery stalk, sliced","2 cups low-sodium chicken broth","Thyme, pepper"],
+  steps:["Simmer the carrot and celery in the broth for 8 minutes.","Add the noodles and cook 6 minutes.","Stir in the chicken and thyme to heat through."]},
+ {id:"tempeh",n:"Tempeh Veggie Stir-Fry",meal:"Lunch",t:15,k:340,p:33,c:24,f:15,fb:9,serves:1,
+  ing:["5 oz tempeh, cubed","1 cup broccoli florets","1 bell pepper, sliced","1 tbsp soy sauce","1 tsp grated ginger","1 garlic clove, minced","Cooking spray"],
+  steps:["Brown the tempeh in a sprayed pan, 5 minutes.","Add the vegetables, ginger and garlic and stir-fry 4 minutes.","Finish with soy sauce."]},
+
+ /* ----- dinner ----- */
+ {id:"meatballs",n:"Turkey Meatballs & Zucchini Noodles",meal:"Dinner",t:25,k:340,p:46,c:24,f:6,fb:6,serves:1,
+  ing:["6 oz 99% lean ground turkey","1 egg white","1/2 cup marinara sauce","2 medium zucchini, spiralized","1 tbsp grated Parmesan","Garlic powder, Italian seasoning, salt"],
+  steps:["Mix the turkey, egg white and seasoning and roll into 6 meatballs.","Bake at 400°F (200°C) for 15 minutes.","Warm the marinara, toss in the zucchini for 2 minutes, and top with meatballs and Parmesan."]},
+ {id:"thighs",n:"Lemon Herb Chicken Thighs & Asparagus",meal:"Dinner",t:25,k:290,p:36,c:7,f:12,fb:3,serves:1,
+  ing:["6 oz boneless skinless chicken thighs","10 asparagus spears","1 tsp olive oil","1 lemon","Garlic powder, dried oregano, salt"],
+  steps:["Heat the oven to 425°F (220°C).","Season the chicken and asparagus with oil, lemon juice and spices on a sheet pan.","Roast 18 to 20 minutes."]},
+ {id:"pork",n:"Pork Tenderloin, Apple & Brussels Sprouts",meal:"Dinner",t:30,k:350,p:40,c:25,f:11,fb:7,serves:1,
+  ing:["6 oz pork tenderloin","1.5 cups Brussels sprouts, halved","1/2 apple, sliced","1 tsp olive oil","1 tbsp Dijon mustard","Salt, pepper, thyme"],
+  steps:["Rub the pork with mustard and thyme.","Toss the sprouts and apple with oil on a sheet pan and nestle in the pork.","Roast at 425°F (220°C) for 20 minutes, then rest the pork 5 minutes."]},
+ {id:"tilapia",n:"Blackened Tilapia & Cauliflower Rice",meal:"Dinner",t:15,k:290,p:44,c:11,f:9,fb:4,serves:1,
+  ing:["7 oz tilapia fillets","2 cups cauliflower rice","1 tsp olive oil","1 tbsp blackening seasoning","1/2 lime","Cilantro"],
+  steps:["Coat the fish in the seasoning and sear in the oil 3 minutes a side.","Sauté the cauliflower rice in the same pan for 4 minutes.","Serve with lime and cilantro."]},
+ {id:"fajita",n:"Chicken Fajita Skillet",meal:"Dinner",t:20,k:400,p:43,c:42,f:7,fb:8,serves:1,
+  ing:["6 oz raw chicken breast, sliced","1 bell pepper, sliced","1/2 onion, sliced","1 tbsp fajita seasoning","2 corn tortillas","1/4 cup salsa","1/2 lime, cooking spray"],
+  steps:["Sear the chicken with the seasoning in a sprayed pan, 5 minutes.","Add the pepper and onion and cook until charred at the edges.","Serve in warm tortillas with salsa and lime."]},
+ {id:"beefbroc",n:"Beef & Broccoli",meal:"Dinner",t:20,k:400,p:38,c:38,f:12,fb:5,serves:1,
+  ing:["5 oz flank steak, thinly sliced","2 cups broccoli florets","1/2 cup cooked rice","1.5 tbsp soy sauce","1 tsp cornstarch","1 garlic clove, minced","1 tsp grated ginger"],
+  steps:["Toss the steak with the cornstarch and half the soy.","Sear the steak 2 minutes, then remove. Steam-fry the broccoli with a splash of water.","Return the steak with garlic, ginger and the remaining soy. Serve over rice."]},
+ {id:"cod",n:"Baked Cod, Potatoes & Green Beans",meal:"Dinner",t:30,k:370,p:40,c:39,f:6,fb:7,serves:1,
+  ing:["7 oz cod fillet","6 oz baby potatoes, halved","1 cup green beans","1 tsp olive oil","1/2 lemon","Paprika, garlic powder, salt"],
+  steps:["Roast the potatoes with the oil at 425°F (220°C) for 12 minutes.","Add the seasoned cod and green beans to the pan.","Roast 12 more minutes and finish with lemon."]},
+ {id:"peppers",n:"Turkey Stuffed Peppers",meal:"Dinner",t:35,k:320,p:39,c:29,f:5,fb:4,serves:1,
+  ing:["5 oz 99% lean ground turkey","1 large bell pepper, halved","1/3 cup cooked rice","1/4 cup tomato sauce","2 tbsp reduced-fat shredded cheese","Cumin, garlic powder, salt"],
+  steps:["Brown the turkey with the spices, then stir in the rice and tomato sauce.","Fill the pepper halves and top with cheese.","Bake at 400°F (200°C) for 20 minutes."]},
+ {id:"tikka",n:"Yogurt-Spiced Chicken & Cauliflower",meal:"Dinner",t:30,k:320,p:47,c:19,f:5,fb:5,serves:1,
+  ing:["6 oz raw chicken breast, cubed","1/4 cup nonfat Greek yogurt","1 tbsp garam masala or curry powder","1/2 cup tomato sauce","1.5 cups cauliflower florets","1 garlic clove, minced","Cilantro, salt"],
+  steps:["Coat the chicken in the yogurt and half the spice. Rest 10 minutes if you can.","Sear the chicken, then add garlic, tomato sauce, cauliflower and the remaining spice.","Cover and simmer 12 minutes. Top with cilantro."]},
+ {id:"friedrice",n:"Light Shrimp Fried Rice",meal:"Dinner",t:15,k:500,p:46,c:55,f:11,fb:4,serves:1,
+  ing:["6 oz raw shrimp, peeled","1 cup cooked rice, cold","1 large egg","1/2 cup frozen peas and carrots","1 tbsp soy sauce","1 tsp sesame oil","1 scallion, sliced"],
+  steps:["Sear the shrimp in the sesame oil for 3 minutes, then remove.","Scramble the egg, add the rice and vegetables, and fry until hot.","Return the shrimp with soy and scallion."]},
+ {id:"salsachx",n:"Slow-Cooker Salsa Chicken",meal:"Dinner",t:15,k:370,p:46,c:34,f:6,fb:9,serves:4,
+  ing:["1.5 lb raw chicken breast","1 jar (16 oz) salsa","1 can (15 oz) black beans, rinsed","1 cup frozen corn","2 tbsp taco seasoning"],
+  steps:["Put everything in the slow cooker.","Cook 4 hours on high or 7 on low (15 minutes is hands-on time).","Shred the chicken into the sauce. Makes 4 servings."]},
+ {id:"mac",n:"Meathead Mac",meal:"Dinner",t:20,k:450,p:49,c:38,f:14,fb:5,serves:1,
+  ing:["2 oz dry chickpea pasta","4 oz 96% lean ground beef","1/4 cup reduced-fat shredded cheddar","1/4 cup nonfat Greek yogurt","1 tsp yellow mustard","Garlic powder, paprika, salt"],
+  steps:["Boil the pasta and save 1/4 cup of the water.","Brown the beef with the spices.","Off the heat, stir in the pasta, cheese, yogurt, mustard and enough pasta water to make it creamy."]},
+ {id:"ahi",n:"Seared Tuna Steak & Sesame Slaw",meal:"Dinner",t:10,k:280,p:43,c:10,f:6,fb:4,serves:1,
+  ing:["6 oz ahi tuna steak","2 cups coleslaw mix","1 tsp sesame oil","1 tbsp rice vinegar","1 tbsp soy sauce","Sesame seeds, pepper"],
+  steps:["Toss the slaw with vinegar, sesame oil and half the soy.","Sear the tuna in a very hot dry pan, 60 to 90 seconds a side.","Slice it over the slaw and add the remaining soy."]},
+ {id:"sausagebeans",n:"Chicken Sausage, Peppers & White Beans",meal:"Dinner",t:15,k:420,p:34,c:36,f:15,fb:9,serves:1,
+  ing:["2 chicken sausage links, sliced","1 bell pepper, sliced","1/2 onion, sliced","1/2 cup canned cannellini beans, rinsed","1 garlic clove, minced","Chili flakes, cooking spray"],
+  steps:["Brown the sausage in a sprayed pan.","Add the pepper, onion and garlic and cook 6 minutes.","Stir in the beans to warm through."]},
+ {id:"miso",n:"Miso Salmon & Bok Choy",meal:"Dinner",t:20,k:350,p:34,c:9,f:19,fb:3,serves:1,
+  ing:["5 oz salmon fillet","1 tbsp white miso paste","2 heads baby bok choy, halved","1 tsp grated ginger","1 tsp rice vinegar"],
+  steps:["Mix the miso, ginger and vinegar and spread over the salmon.","Roast with the bok choy at 425°F (220°C) for 12 minutes."]},
+ {id:"parm",n:"No-Fry Chicken Parmesan",meal:"Dinner",t:30,k:390,p:49,c:19,f:12,fb:4,serves:1,
+  ing:["6 oz raw chicken breast, pounded thin","1/3 cup marinara sauce","1/4 cup part-skim shredded mozzarella","2 tbsp panko breadcrumbs","1 cup broccoli florets","Italian seasoning, cooking spray"],
+  steps:["Season the chicken, press on the panko, spray, and bake at 425°F (220°C) for 15 minutes.","Top with marinara and mozzarella and bake 5 more minutes.","Serve with steamed broccoli."]},
+ {id:"squash",n:"Spaghetti Squash Bolognese",meal:"Dinner",t:25,k:380,p:34,c:40,f:9,fb:9,serves:1,
+  ing:["1/2 medium spaghetti squash (about 3 cups cooked)","5 oz 96% lean ground beef","1/2 cup marinara sauce","1 garlic clove, minced","Italian seasoning, salt"],
+  steps:["Microwave the squash cut-side down with a splash of water for 10 to 12 minutes.","Brown the beef with garlic and seasoning, then add the marinara.","Scrape the squash into strands and top with the sauce."]},
+ {id:"curry",n:"Tofu, Chickpea & Spinach Curry",meal:"Dinner",t:20,k:350,p:25,c:35,f:13,fb:10,serves:1,
+  ing:["5 oz firm tofu, cubed","1/2 cup canned chickpeas, rinsed","2 cups baby spinach","1/2 cup crushed tomatoes","1/4 cup light coconut milk","1 tbsp curry powder","1 garlic clove, minced"],
+  steps:["Toast the curry powder and garlic for 30 seconds.","Add the tomatoes, coconut milk, tofu and chickpeas and simmer 10 minutes.","Stir in the spinach until it wilts."]},
+ {id:"bolognese",n:"Turkey Bolognese Pasta",meal:"Dinner",t:20,k:540,p:46,c:74,f:6,fb:5,serves:1,
+  ing:["3 oz dry pasta","5 oz 99% lean ground turkey","1/2 cup marinara sauce","1 garlic clove, minced","Italian seasoning, basil"],
+  steps:["Boil the pasta.","Brown the turkey with garlic and seasoning, then simmer in the marinara for 5 minutes.","Toss with the pasta and basil."]},
+ {id:"loadedspud",n:"Loaded Chicken Sweet Potato",meal:"Dinner",t:15,k:470,p:52,c:50,f:6,fb:10,serves:1,
+  ing:["1 large sweet potato","5 oz cooked chicken breast, shredded","1/4 cup canned black beans, rinsed","2 tbsp nonfat Greek yogurt","1/4 cup salsa","Chili powder"],
+  steps:["Microwave the sweet potato 8 to 10 minutes until soft.","Warm the chicken and beans with chili powder.","Split the potato and load it with the chicken, beans, salsa and yogurt."]},
+ {id:"couscous",n:"Grilled Chicken & Couscous",meal:"Dinner",t:20,k:450,p:49,c:38,f:10,fb:5,serves:1,
+  ing:["5 oz cooked chicken breast","3/4 cup cooked couscous","1 small zucchini, sliced","1/2 bell pepper, sliced","1 tsp olive oil","1/2 lemon, cumin, salt"],
+  steps:["Sauté the zucchini and pepper in the oil until browned.","Fluff the couscous with lemon and cumin.","Serve with the sliced chicken."]},
+ {id:"pho",n:"Chicken Rice Noodle Bowl",meal:"Dinner",t:15,k:460,p:48,c:50,f:6,fb:2,serves:1,
+  ing:["2 oz dry rice noodles","5 oz cooked chicken breast, shredded","2 cups low-sodium chicken broth","1 cup bean sprouts","1 tsp grated ginger","1/2 lime","Basil or cilantro, sriracha"],
+  steps:["Simmer the broth with the ginger for 5 minutes.","Cook the noodles in the broth for 3 to 4 minutes.","Add the chicken and top with sprouts, herbs, lime and sriracha."]},
+
+ /* ----- snacks ----- */
+ {id:"pbshake",n:"PB Banana Protein Shake",meal:"Snack",t:3,k:370,p:38,c:47,f:4,fb:5,serves:1,
+  ing:["1 scoop whey protein","2 tbsp powdered peanut butter","1 banana","1 cup skim milk","Ice"],
+  steps:["Blend everything until smooth."]},
+ {id:"mugcake",n:"Chocolate Protein Mug Cake",meal:"Snack",t:4,k:210,p:30,c:16,f:4,fb:4,serves:1,
+  ing:["1 scoop chocolate whey protein","2 tbsp oat flour","1 tbsp cocoa powder","1 egg white","1/4 cup unsweetened almond milk","1/4 tsp baking powder"],
+  steps:["Stir everything in a large mug until smooth.","Microwave 60 to 75 seconds. Stop while the center is still slightly soft."]},
+ {id:"tunaboats",n:"Tuna Cucumber Boats",meal:"Snack",t:5,k:170,p:29,c:8,f:2,fb:2,serves:1,
+  ing:["1 can (5 oz) tuna in water, drained","2 tbsp nonfat Greek yogurt","1 tsp Dijon mustard","1 large cucumber","Salt, pepper, paprika"],
+  steps:["Mix the tuna, yogurt and mustard.","Halve the cucumber lengthwise, scoop out the seeds, and fill."]},
+ {id:"jerkybox",n:"Jerky & Edamame Snack Box",meal:"Snack",t:3,k:240,p:27,c:22,f:5,fb:6,serves:1,
+  ing:["1.5 oz turkey jerky","1/2 cup shelled edamame","1 mandarin orange"],
+  steps:["Thaw the edamame under warm water and salt it.","Pack everything in a box. It travels well in a gym bag."]},
+ {id:"appledip",n:"Apple & PB Protein Dip",meal:"Snack",t:3,k:250,p:27,c:34,f:2,fb:6,serves:1,
+  ing:["1/2 cup nonfat plain Greek yogurt","1/2 scoop vanilla whey protein","1 tbsp powdered peanut butter","1 apple, sliced","Cinnamon"],
+  steps:["Stir the yogurt, whey, powdered peanut butter and cinnamon until smooth.","Dip the apple slices."]},
+ {id:"eggplate",n:"Eggs & Cottage Cheese Plate",meal:"Snack",t:3,k:250,p:25,c:9,f:13,fb:1,serves:1,
+  ing:["2 hard-boiled eggs","1/2 cup low-fat cottage cheese","1/2 cup cherry tomatoes","Salt, pepper"],
+  steps:["Halve the eggs and plate with the cottage cheese and tomatoes.","Season well."]},
+ {id:"coffee",n:"Protein Iced Coffee",meal:"Snack",t:2,k:210,p:32,c:15,f:2,fb:0,serves:1,
+  ing:["1 scoop vanilla whey protein","1 cup cold brew coffee","1 cup skim milk","Ice"],
+  steps:["Shake the whey with the milk until smooth.","Pour over ice and add the cold brew."]},
+ {id:"pudding",n:"Chocolate Protein Pudding",meal:"Snack",t:3,k:230,p:36,c:20,f:2,fb:4,serves:1,
+  ing:["1 cup nonfat plain Greek yogurt","1/2 scoop chocolate whey protein","1 tbsp cocoa powder","1/2 cup strawberries, sliced"],
+  steps:["Whisk the yogurt, whey and cocoa until glossy.","Top with strawberries."]},
+
+ /* ----- desserts ----- */
+ {id:"icecream",n:"Chocolate Banana Protein Ice Cream",meal:"Dessert",cr:"frozen",t:5,k:250,p:26,c:33,f:3,fb:5,serves:1,
+  ing:["1 frozen banana, sliced","1 scoop chocolate whey protein","1 tbsp cocoa powder","1/4 cup unsweetened almond milk"],
+  steps:["Blend the frozen banana with the milk until it breaks down.","Add the whey and cocoa and blend until thick like soft serve.","Eat now, or freeze 30 minutes for a firmer scoop."]},
+ {id:"cookiedough",n:"Cookie Dough Protein Bowl",meal:"Dessert",cr:"creamy",t:3,k:260,p:32,c:20,f:5,fb:1,serves:1,
+  ing:["3/4 cup nonfat plain Greek yogurt","1/2 scoop vanilla whey protein","1 tbsp powdered peanut butter","1 tbsp mini chocolate chips","1/4 tsp vanilla extract, pinch of salt"],
+  steps:["Stir the yogurt, whey, powdered peanut butter, vanilla and salt into a thick dough.","Fold in the chocolate chips."]},
+ {id:"cheesecake",n:"Baked Protein Cheesecake Cups",meal:"Dessert",cr:"baked",t:35,k:200,p:23,c:6,f:9,fb:0,serves:4,
+  ing:["2 cups nonfat plain Greek yogurt","4 oz light cream cheese, softened","2 large eggs","1 scoop vanilla whey protein","2 tbsp zero-calorie sweetener","1 tsp vanilla extract"],
+  steps:["Heat the oven to 325°F (160°C).","Blend everything until completely smooth and pour into 4 ramekins.","Bake 25 minutes until the centers barely wobble, then chill before eating. Makes 4."]},
+ {id:"mousse",n:"Chocolate Peanut Butter Mousse",meal:"Dessert",cr:"choc",t:3,k:200,p:29,c:17,f:3,fb:4,serves:1,
+  ing:["1 cup nonfat plain Greek yogurt","2 tbsp powdered peanut butter","1 tbsp cocoa powder","Zero-calorie sweetener to taste"],
+  steps:["Whisk everything hard for a minute until light and glossy.","Chill 10 minutes if you want it firmer."]},
+ {id:"strawparfait",n:"Strawberry Cheesecake Parfait",meal:"Dessert",cr:"fruit",t:5,k:265,p:25,c:33,f:4,fb:3,serves:1,
+  ing:["1/2 cup low-fat cottage cheese","1/2 cup nonfat plain Greek yogurt","1 cup strawberries, sliced","1 graham cracker sheet, crushed","1/4 tsp vanilla extract"],
+  steps:["Blend the cottage cheese, yogurt and vanilla until smooth.","Layer with the strawberries and finish with the graham crumbs."]},
+ {id:"bananamug",n:"Banana Bread Protein Mug Cake",meal:"Dessert",cr:"baked",t:4,k:240,p:30,c:25,f:3,fb:3,serves:1,
+  ing:["1/2 ripe banana, mashed","1 scoop vanilla whey protein","2 tbsp oat flour","1 egg white","1/4 tsp baking powder","Cinnamon"],
+  steps:["Stir everything in a large mug until smooth.","Microwave 70 to 90 seconds until just set."]},
+ {id:"bark",n:"Frozen Berry Yogurt Bark",meal:"Dessert",cr:"frozen",t:10,k:150,p:18,c:15,f:3,fb:2,serves:4,
+  ing:["2 cups nonfat plain Greek yogurt","1 scoop vanilla whey protein","1 cup mixed berries","2 tbsp dark chocolate chips"],
+  steps:["Stir the whey into the yogurt and spread it 1/2 inch thick on a lined tray.","Scatter over the berries and chocolate chips.","Freeze 3 hours and snap into pieces. Makes 4 servings."]},
+ {id:"tiramisu",n:"Tiramisu Protein Cup",meal:"Dessert",cr:"creamy",t:5,k:240,p:31,c:22,f:3,fb:1,serves:1,
+  ing:["3/4 cup nonfat plain Greek yogurt","1/2 scoop vanilla whey protein","2 ladyfingers","2 tbsp strong coffee, cooled","1 tsp cocoa powder"],
+  steps:["Stir the whey into the yogurt.","Break the ladyfingers into a glass and spoon over the coffee.","Top with the yogurt and dust with cocoa."]},
+ {id:"applecrumble",n:"Apple Pie Protein Crumble",meal:"Dessert",cr:"fruit",t:8,k:260,p:25,c:37,f:2,fb:6,serves:1,
+  ing:["1 apple, diced","2 tbsp rolled oats","1/2 scoop vanilla whey protein","1/2 cup nonfat plain Greek yogurt","Cinnamon"],
+  steps:["Microwave the apple with cinnamon and a splash of water for 2 minutes.","Mix the oats, whey and 1 tbsp of the yogurt into crumbs and scatter on top.","Microwave 45 seconds more and serve with the rest of the yogurt."]},
+ {id:"fudge",n:"Peanut Butter Protein Fudge",meal:"Dessert",cr:"choc",t:10,k:140,p:17,c:7,f:6,fb:2,serves:4,
+  ing:["2 scoops chocolate whey protein","1/4 cup powdered peanut butter","2 tbsp natural peanut butter","1 tbsp cocoa powder","3 tbsp unsweetened almond milk"],
+  steps:["Mix everything into a stiff dough, adding milk a teaspoon at a time.","Press into a small lined container.","Freeze 1 hour and cut into 4 squares."]},
+ {id:"brownie",n:"Single-Serve Protein Brownie",meal:"Dessert",cr:"choc",t:5,k:250,p:29,c:23,f:7,fb:6,serves:1,
+  ing:["1 scoop chocolate whey protein","2 tbsp cocoa powder","1/4 cup canned pumpkin puree","1 egg white","1 tbsp chocolate chips","1/4 tsp baking powder"],
+  steps:["Stir everything except the chips in a ramekin, then press the chips on top.","Microwave 60 to 80 seconds. Pull it while the middle is still fudgy."]},
+ {id:"lemondip",n:"Lemon Cheesecake Dip & Blueberries",meal:"Dessert",cr:"fruit",t:5,k:215,p:25,c:23,f:3,fb:3,serves:1,
+  ing:["1/2 cup low-fat cottage cheese","1/2 scoop vanilla whey protein","1/2 lemon, zest and juice","3/4 cup blueberries"],
+  steps:["Blend the cottage cheese, whey, lemon zest and juice until silky.","Serve with the blueberries for dipping."]},
+ {id:"chocshake",n:"Chocolate Strawberry Milkshake",meal:"Dessert",cr:"choc",t:3,k:270,p:33,c:31,f:2,fb:5,serves:1,
+  ing:["1 scoop chocolate whey protein","1 cup frozen strawberries","1 cup skim milk","1 tbsp cocoa powder"],
+  steps:["Blend until thick and smooth."]},
+ {id:"pumpkin",n:"Pumpkin Pie Protein Pudding",meal:"Dessert",cr:"creamy",t:3,k:220,p:30,c:23,f:1,fb:4,serves:1,
+  ing:["1/2 cup canned pumpkin puree","3/4 cup nonfat plain Greek yogurt","1/2 scoop vanilla whey protein","1 tsp maple syrup","1/2 tsp pumpkin pie spice"],
+  steps:["Whisk everything until smooth.","Chill if you have time. It thickens as it sits."]},
+ {id:"cinnamug",n:"Cinnamon Roll Mug Cake",meal:"Dessert",cr:"baked",t:4,k:240,p:33,c:19,f:4,fb:2,serves:1,
+  ing:["1 scoop vanilla whey protein","3 tbsp oat flour","1 egg white","1/4 cup unsweetened almond milk","1/4 tsp baking powder","1 tsp cinnamon","2 tbsp nonfat Greek yogurt, for icing"],
+  steps:["Stir the whey, flour, egg white, milk and baking powder in a mug and swirl in the cinnamon.","Microwave 60 to 75 seconds.","Spoon the yogurt over the top as icing."]},
+ {id:"bananabites",n:"Frozen Banana PB Bites",meal:"Dessert",cr:"frozen",t:10,k:330,p:26,c:45,f:7,fb:5,serves:1,
+  ing:["1 banana, sliced into coins","1/4 cup nonfat plain Greek yogurt","1/2 scoop vanilla whey protein","2 tbsp powdered peanut butter","1 tbsp chocolate chips, melted"],
+  steps:["Mix the yogurt, whey and powdered peanut butter into a thick cream.","Sandwich it between banana coins and drizzle with chocolate.","Freeze 1 hour."]},
+ {id:"sorbet",n:"Berry Protein Sorbet",meal:"Dessert",cr:"frozen",t:5,k:260,p:31,c:30,f:2,fb:6,serves:1,
+  ing:["1.5 cups frozen mixed berries","1 scoop vanilla whey protein","1/4 cup nonfat plain Greek yogurt","2 to 3 tbsp cold water"],
+  steps:["Blend the berries, whey and yogurt, adding water a spoonful at a time.","Stop when it is thick and scoopable."]},
+ {id:"ricepudding",n:"Cinnamon Protein Rice Pudding",meal:"Dessert",cr:"creamy",t:6,k:265,p:24,c:39,f:1,fb:1,serves:1,
+  ing:["1/2 cup cooked rice","1/2 cup skim milk","1/2 scoop vanilla whey protein","1/4 cup nonfat plain Greek yogurt","1 tbsp raisins","Cinnamon"],
+  steps:["Simmer the rice in the milk for 4 minutes until creamy, then cool for a minute.","Stir in the whey and yogurt off the heat.","Top with raisins and cinnamon."]},
+ {id:"smores",n:"S'mores Protein Bowl",meal:"Dessert",cr:"choc",t:3,k:295,p:36,c:30,f:4,fb:1,serves:1,
+  ing:["1 cup nonfat plain Greek yogurt","1/2 scoop chocolate whey protein","1 graham cracker sheet, crushed","2 tbsp mini marshmallows","1 tsp chocolate chips"],
+  steps:["Stir the whey into the yogurt.","Top with the graham, marshmallows and chocolate chips."]},
+ {id:"peach",n:"Peach Cobbler Baked Oats",meal:"Dessert",cr:"baked",t:25,k:255,p:28,c:29,f:3,fb:4,serves:1,
+  ing:["1/3 cup rolled oats","1/2 scoop vanilla whey protein","1/2 cup diced peaches","1/4 cup liquid egg whites","1/4 cup nonfat plain Greek yogurt","Cinnamon"],
+  steps:["Mix the oats, whey, egg whites and half the peaches in a ramekin.","Top with the remaining peaches and cinnamon and bake at 375°F (190°C) for 18 minutes.","Serve warm with the yogurt."]}
+];
+
+const COST = {skillet:3.90,yogurt:3.15,proats:2.00,pancakes:2.15,eggoats:1.50,btacos:1.75,burrito:3.45,tuna:3.55,buffalo:3.40,kale:3.35,tofu:2.80,fishtacos:4.40,shrimp:6.30,chili:2.90,salmon:4.95,steak:5.25,chickrice:3.00,lentil:3.05,eggroll:3.10,ppasta:3.50,burger:4.45,teriyaki:2.60,carbpasta:2.65,smoothie:2.50,dip:2.45,chia:3.10,frenchtoast:2.60,lox:4.45,bburrito:3.05,waffle:2.35,muffincups:1.95,cottoast:1.90,hash:3.90,parfait:3.15,bagel:3.15,wrap:3.75,caesar:4.00,ceviche:5.40,chxsandwich:2.75,salmonbowl:3.70,tacosalad:4.20,eggsalad:1.70,greekbowl:3.95,poke:6.05,lentilegg:2.10,rollups:4.10,noodlesoup:2.95,tempeh:4.00,meatballs:5.05,thighs:3.20,pork:3.80,tilapia:4.20,fajita:3.75,beefbroc:5.35,cod:5.55,peppers:3.60,tikka:3.55,friedrice:4.30,salsachx:2.85,mac:3.60,ahi:7.00,sausagebeans:3.90,miso:5.15,parm:3.20,squash:4.85,curry:2.85,bolognese:3.25,loadedspud:3.40,couscous:3.55,pho:3.85,pbshake:2.00,mugcake:1.60,tunaboats:2.25,jerkybox:4.00,appledip:2.15,eggplate:1.65,coffee:1.95,pudding:2.80,icecream:1.60,cookiedough:2.10,cheesecake:1.40,mousse:1.95,strawparfait:2.60,bananamug:1.50,bark:1.60,tiramisu:2.20,applecrumble:1.90,fudge:0.85,brownie:1.75,lemondip:2.40,chocshake:2.60,pumpkin:2.10,cinnamug:1.60,bananabites:1.80,sorbet:3.60,ricepudding:1.25,smores:2.25,peach:1.70};
+R.forEach(r => { r.d = Math.round(COST[r.id] * r.serves * 100) / 100; });   // price of the whole recipe as written
+const usd = n => "$" + n.toFixed(2);
+R.forEach(r => {
+  const t = r.ing.join(" ").toLowerCase();
+  r.diet = /chicken|turkey|beef|sirloin|flank|pork|sausage|jerky|marshmallow/.test(t) ? "meat" : /tuna|salmon|\bcod\b|shrimp|tilapia/.test(t) ? "fish" : "veg";
+});
+const MAINS = R.filter(r => r.meal !== "Dessert"), SWEETS = R.filter(r => r.meal === "Dessert");
+const CRAVE = {all:"All 20", choc:"Chocolate", fruit:"Fruity", frozen:"Frozen", baked:"Baked", creamy:"Creamy"};
+let crave = "all";
+function dietOK(r){ const d = $("diet").value; return !d || (d === "veg" ? r.diet === "veg" : r.diet !== "meat"); }
+
+const NONE = {pMin:0,kMax:650,fMin:0,cMin:0,cMax:90,dMax:12};
+const PROFILES = [
+ {id:"bulk",group:"meat",n:"Lean bulk",sports:"Build · size without the fluff",set:{pMin:40,cMin:40},
+  why:"Big protein with enough carbs to push volume, without the dirty-bulk calories."},
+ {id:"mass",group:"meat",n:"Mass gain",sports:"Build · hardgainers",set:{pMin:45,cMin:50},
+  why:"The heaviest plates in the library. For people who struggle to eat enough to grow."},
+ {id:"cut",group:"meat",n:"The cut",sports:"Goal · getting shredded",set:{pMin:35,kMax:350},
+  why:"Maximum protein per calorie so you hold muscle while the deficit does its job."},
+ {id:"prep",group:"meat",n:"Contest prep",sports:"Goal · stage or photo shoot",set:{pMin:40,kMax:320,cMax:30},
+  why:"Tight calories, tight carbs, protein kept high. The last weeks before you step on stage."},
+ {id:"recomp",group:"meat",n:"Recomp",sports:"Goal · lose fat, keep lifting heavy",set:{pMin:35,kMax:450,fMin:4},
+  why:"Moderate calories and high protein for adding muscle while the scale barely moves."},
+ {id:"maintain",group:"meat",n:"Maintenance",sports:"Goal · hold what you built",set:{pMin:30,kMax:500,cMin:25,fMin:5},
+  why:"Balanced everyday plates with enough carbs and fiber to eat this way all year."},
+ {id:"lowcarb",group:"meat",n:"Low-carb lean",sports:"Goal · keto-leaning eaters",set:{pMin:30,cMax:15},
+  why:"Protein and vegetables with carbs kept under 15 g a serving."},
+ {id:"full",group:"meat",n:"Stay full",sports:"Goal · beat diet hunger",set:{pMin:25,kMax:450,fMin:10},
+  why:"At least 10 g of fiber a plate, so a deficit stops feeling like one."},
+ {id:"endurance",group:"sport",n:"Endurance",sports:"Running · cycling · triathlon",set:{pMin:25,cMin:45},
+  why:"Carbs refill glycogen for long sessions. Protein repairs what the miles break down."},
+ {id:"swim",group:"sport",n:"Swimming",sports:"Pool · open water · water polo",set:{pMin:30,cMin:45,fMin:3},
+  why:"Two-a-day pool sessions drain fuel quickly. Carb-forward meals with solid protein."},
+ {id:"combat",group:"sport",n:"Combat",sports:"Boxing · MMA · wrestling · BJJ",set:{pMin:35,kMax:400,cMax:35},
+  why:"Lean, filling plates for staying near your weight class through camp."},
+ {id:"field",group:"sport",n:"Field & court",sports:"Soccer · basketball · football · hockey",set:{pMin:30,cMin:40,kMax:600},
+  why:"Repeat-sprint sports burn carbs fast. These meals refuel without weighing you down."},
+ {id:"strength",group:"sport",n:"Strength & power",sports:"Powerlifting · weightlifting · throws",set:{pMin:40},
+  why:"Protein first. Calories and carbs stay open so you can eat for your weight class."},
+ {id:"sprint",group:"sport",n:"Sprint & jump",sports:"Track sprints · jumps · hurdles",set:{pMin:40,cMin:25,kMax:500},
+  why:"Power athletes need muscle without extra mass to carry. High protein, moderate carbs."},
+ {id:"hybrid",group:"sport",n:"Hybrid",sports:"CrossFit · HYROX · obstacle racing",set:{pMin:30,cMin:30,kMax:500,fMin:5},
+  why:"Balanced plates for people who lift and run in the same hour, with fiber to stay full."},
+ {id:"racquet",group:"sport",n:"Racquet",sports:"Tennis · pickleball · squash · badminton",set:{pMin:30,cMin:30,kMax:450},
+  why:"Long matches with short bursts. Steady carbs in meals light enough to move on."},
+ {id:"climb",group:"sport",n:"Climbing & gymnastics",sports:"Bouldering · sport climbing · gymnastics",set:{pMin:35,kMax:400,fMin:4},
+  why:"Strength-to-weight is everything. Lean protein in plates that keep you light."},
+ {id:"bat",group:"sport",n:"Bat & club",sports:"Baseball · softball · golf · cricket",set:{pMin:30,kMax:400,fMin:5},
+  why:"Long days, short efforts. Lighter meals that hold energy steady for hours."}
+];
+const NEEDS = [
+ {id:"n-protein",n:"Max protein",set:{pMin:45}},
+ {id:"n-lowcal",n:"Low calorie",set:{kMax:320}},
+ {id:"n-fiber",n:"High fiber",set:{fMin:8}},
+ {id:"n-lowcarb",n:"Low carb",set:{cMax:20}},
+ {id:"n-highcarb",n:"High carb fuel",set:{cMin:45}},
+ {id:"n-budget",n:"Budget",set:{pMin:25,dMax:3}}
+];
+
+/* ---------- state ---------- */
+const $ = id => document.getElementById(id);
+let F = Object.assign({}, NONE);
+let preset = null;
+let T = null;      // daily targets from the calculator
+let list = {};      // recipeId -> array of checked ingredient indexes
+try { list = JSON.parse(localStorage.getItem("build-list") || "{}") || {}; } catch(e){ list = {}; }
+Object.keys(list).forEach(k => {
+  if(Array.isArray(list[k])) list[k] = {c:list[k], q:1};
+  const it = list[k];
+  if(!R.some(r => r.id === k) || !it || !Array.isArray(it.c) || !(it.q >= 0.5 && it.q <= 4)) delete list[k];
+});
+function saveList(){ try { localStorage.setItem("build-list", JSON.stringify(list)); } catch(e){} }
+
+const density = r => r.p / r.k * 100;
+const maxDensity = Math.max.apply(null, R.map(density));
+
+function targetText(s){
+  const out = [];
+  if(s.pMin) out.push("≥ " + s.pMin + "g protein");
+  if(s.kMax) out.push("≤ " + s.kMax + " kcal");
+  if(s.cMin) out.push("≥ " + s.cMin + "g carbs");
+  if(s.cMax) out.push("≤ " + s.cMax + "g carbs");
+  if(s.fMin) out.push("≥ " + s.fMin + "g fiber");
+  if(s.dMax) out.push("≤ " + usd(s.dMax));
+  return out.join(" · ");
+}
+
+/* ---------- render: presets ---------- */
+function renderPresets(){
+  ["meat","sport"].forEach(g => {
+    $(g === "meat" ? "profMeat" : "profSport").innerHTML = PROFILES.filter(p => p.group === g).map(p =>
+      '<button type="button" class="profile" data-preset="' + p.id + '" aria-pressed="' + (preset === p.id) + '">' +
+      '<span class="mono sports">' + p.sports + '</span>' +
+      '<h3>' + p.n + '</h3>' +
+      '<p class="why">' + p.why + '</p>' +
+      '<span class="mono target">' + targetText(p.set) + '</span></button>').join("");
+  });
+  $("needs").innerHTML = NEEDS.map(n =>
+    '<button type="button" class="chip mono" data-preset="' + n.id + '" aria-pressed="' + (preset === n.id) + '">' +
+    n.n + ' · ' + targetText(n.set) + '</button>').join("");
+}
+function applyPreset(id){
+  if(preset === id){ preset = null; F = Object.assign({}, NONE); }
+  else {
+    const p = PROFILES.concat(NEEDS).find(x => x.id === id);
+    preset = id; F = Object.assign({}, NONE, p.set);
+  }
+  syncDials(); renderPresets(); renderGrid();
+}
+
+/* ---------- dials ---------- */
+const DIALS = ["pMin","kMax","fMin","cMin","cMax","dMax"];
+function syncDials(){
+  DIALS.forEach(d => { $(d).value = F[d]; });
+  $("pMinOut").textContent = F.pMin ? F.pMin + " g" : "Any";
+  $("kMaxOut").textContent = F.kMax >= 650 ? "Any" : F.kMax + " kcal";
+  $("fMinOut").textContent = F.fMin ? F.fMin + " g" : "Any";
+  $("cMinOut").textContent = F.cMin ? F.cMin + " g" : "Any";
+  $("cMaxOut").textContent = F.cMax >= 90 ? "Any" : F.cMax + " g";
+  $("dMaxOut").textContent = F.dMax >= 12 ? "Any" : usd(F.dMax);
+}
+DIALS.forEach(d => $(d).addEventListener("input", e => {
+  F[d] = +e.target.value;
+  if(d === "cMin" && F.cMax < 90 && F.cMin > F.cMax) F.cMax = Math.min(90, F.cMin);
+  if(d === "cMax" && F.cMin > F.cMax) F.cMin = F.cMax;
+  preset = null; syncDials(); renderPresets(); renderGrid();
+}));
+
+/* ---------- render: recipes ---------- */
+function matches(r){
+  if(r.meal === "Dessert" || !dietOK(r)) return false;
+  if(r.p < F.pMin) return false;
+  if(F.kMax < 650 && r.k > F.kMax) return false;
+  if(r.fb < F.fMin) return false;
+  if(r.c < F.cMin) return false;
+  if(F.cMax < 90 && r.c > F.cMax) return false;
+  if(F.dMax < 12 && r.d > F.dMax) return false;
+  const meal = $("meal").value;
+  if(meal && r.meal !== meal) return false;
+  const q = $("q").value.trim().toLowerCase();
+  if(q && (r.n + " " + r.ing.join(" ")).toLowerCase().indexOf(q) === -1) return false;
+  return true;
+}
+const SORTS = {
+  density:(a,b) => density(b) - density(a),
+  p:(a,b) => b.p - a.p,
+  k:(a,b) => a.k - b.k,
+  fb:(a,b) => b.fb - a.fb,
+  cLow:(a,b) => a.c - b.c,
+  cHigh:(a,b) => b.c - a.c,
+  t:(a,b) => a.t - b.t,
+  cheap:(a,b) => a.d - b.d,
+  value:(a,b) => a.d / a.serves / a.p - b.d / b.serves / b.p
+};
+function card(r, i){
+  const d = density(r);
+  const inList = !!list[r.id];
+  return '<article class="card" style="--i:' + Math.min(i || 0, 11) + '">' +
+    '<div class="card-top"><div class="meta mono"><span>' + (r.cr ? 'Dessert · ' + CRAVE[r.cr] : r.meal) + '</span><span>' + usd(r.d) + ' · ' + r.t + ' min' + (r.serves > 1 ? ' · serves ' + r.serves : '') + '</span></div>' +
+    '<h3>' + r.n + '</h3></div>' +
+    '<div class="macros">' +
+      '<div class="lead"><b>' + r.p + '</b><span>Protein g</span></div>' +
+      '<div><b>' + r.k + '</b><span>Kcal</span></div>' +
+      '<div><b>' + r.c + '</b><span>Carbs g</span></div>' +
+      '<div><b>' + r.fb + '</b><span>Fiber g</span></div>' +
+      '<div><b>' + r.f + '</b><span>Fat g</span></div>' +
+    '</div>' +
+    '<div class="density"><div class="row mono"><span>Protein per 100 kcal</span><b>' + d.toFixed(1) + ' g</b></div>' +
+      '<div class="bar"><i style="width:' + (d / maxDensity * 100).toFixed(0) + '%"></i></div>' +
+      '<div class="row mono"><span>' + (r.serves > 1 ? 'Est. meal price, all ' + r.serves + ' servings' : 'Est. meal price, all ingredients') + '</span><b>' + usd(r.d) + '</b></div>' +
+      '<div class="row mono"><span>Cost per 30 g protein</span><b>' + usd(r.d / r.serves / r.p * 30) + '</b></div></div>' +
+    '<div class="ing"><h4><span>Ingredients</span><span class="dim">' + String(r.ing.length).padStart(2,"0") + (r.serves > 1 ? ' · whole batch' : '') + '</span></h4>' +
+      '<ul>' + r.ing.map(i => '<li>' + i + '</li>').join("") + '</ul></div>' +
+    '<details class="method"><summary>Method</summary><ol>' + r.steps.map(s => '<li>' + s + '</li>').join("") + '</ol></details>' +
+    '<button type="button" class="add mono" data-add="' + r.id + '" aria-pressed="' + inList + '"><span>' +
+      (inList ? 'On shopping list' : 'Add to shopping list') + '</span><span>' + (inList ? '✓' : '+') + '</span></button>' +
+  '</article>';
+}
+const PAGE = 18; let shown = PAGE;
+function renderGrid(keep){
+  if(keep !== true) shown = PAGE;
+  const rows = R.filter(matches).sort(SORTS[$("sort").value]);
+  $("resCount").textContent = String(rows.length).padStart(2,"0");
+  $("resLabel").textContent = (rows.length === 1 ? "match" : "matches") + " of " + MAINS.length;
+  const active = targetText({
+    pMin:F.pMin, kMax:F.kMax < 650 ? F.kMax : 0, cMin:F.cMin, cMax:F.cMax < 90 ? F.cMax : 0, fMin:F.fMin, dMax:F.dMax < 12 ? F.dMax : 0});
+  $("resSummary").textContent = active || "No macro limits set";
+  $("grid").innerHTML = rows.length ? rows.slice(0, shown).map(card).join("") :
+    '<div class="empty" style="grid-column:1/-1"><span class="mono">No recipe fits those limits</span>' +
+    '<p>Lower the protein or fiber floor, raise the calorie ceiling, or clear the search.</p>' +
+    '<button type="button" class="btn solid mono" data-reset="1">Reset filters</button></div>';
+  const left = rows.length - shown;
+  $("more").innerHTML = left > 0 ? '<button type="button" class="btn mono" data-more="1">Show ' + Math.min(PAGE, left) + ' more of ' + left + ' remaining</button>' : '';
+}
+
+/* ---------- render: desserts ---------- */
+function renderDessert(){
+  $("crave").innerHTML = Object.keys(CRAVE).map(k =>
+    '<button type="button" class="chip mono" data-crave="' + k + '" aria-pressed="' + (crave === k) + '">' + CRAVE[k] + '</button>').join("");
+  $("dgrid").innerHTML = SWEETS.filter(r => crave === "all" || r.cr === crave).sort(SORTS.density).map(card).join("");
+}
+
+/* ---------- render: list ---------- */
+function renderList(){
+  const ids = Object.keys(list);
+  $("navCount").textContent = ids.length;
+  $("listWrap").innerHTML = ids.length ? ids.map(id => {
+    const r = R.find(x => x.id === id);
+    return '<div class="list-block"><h3><span>' + r.n + '</span><button type="button" class="mono" data-remove="' + id + '" aria-label="Remove ' + r.n + '">Remove</button></h3>' +
+      '<div class="qty mono"><span>Servings</span><button type="button" data-q="' + id + '" data-dir="-1" aria-label="Fewer servings of ' + r.n + '">−</button><b>' + list[id].q + '</b>' +
+      '<button type="button" data-q="' + id + '" data-dir="1" aria-label="More servings of ' + r.n + '">+</button></div>' +
+      r.ing.map((ing,i) => '<label><input type="checkbox" id="chk-' + id + '-' + i + '" data-check="' + id + '" data-i="' + i + '"' +
+        (list[id].c.indexOf(i) > -1 ? ' checked' : '') + '><span>' + ing + '</span></label>').join("") + '</div>';
+  }).join("") :
+    '<div class="empty" style="grid-column:1/-1"><span class="mono">Your plan is empty</span><p>Use “Add to shopping list” on any recipe. Its macros, cost and ingredients show up here.</p></div>';
+  renderTotals();
+}
+
+function renderTotals(){
+  const rs = Object.keys(list).map(id => R.find(x => x.id === id));
+  if(!rs.length){ $("planTotals").innerHTML = ""; return; }
+  const raw = k => rs.reduce((a,r) => a + (k === "d" ? r.d / r.serves : r[k]) * list[r.id].q, 0);
+  const sum = k => k === "d" ? Math.round(raw(k) * 100) / 100 : Math.round(raw(k));
+  const tile = (label, val, shown, target, unit, lead) => {
+    const pct = target ? Math.min(100, val / target * 100) : 0;
+    return '<div class="tile' + (lead ? ' lead' : '') + '"><span class="mono dim">' + label + '</span><b>' + shown + '</b>' +
+      (target ? '<span class="mono dim">' + Math.round(val / target * 100) + '% of ' + target.toLocaleString() + unit + '</span>' +
+        '<div class="bar"><i style="width:' + pct.toFixed(0) + '%' + (lead ? ';background:#000' : '') + '"></i></div>' : '') + '</div>';
+  };
+  $("planTotals").innerHTML = '<div class="mono dim" style="margin-bottom:10px">Totals for the servings planned across ' + rs.length +
+    (rs.length === 1 ? ' recipe' : ' recipes') + (T ? ', against your daily targets' : '') + '</div><div class="tiles" style="margin-top:0">' +
+    tile("Protein", sum("p"), sum("p") + " g", T && T.p, " g", true) +
+    tile("Calories", sum("k"), sum("k").toLocaleString(), T && T.k, " kcal") +
+    tile("Carbs", sum("c"), sum("c") + " g", T && T.c, " g") +
+    tile("Fiber", sum("fb"), sum("fb") + " g", T && T.fb, " g") +
+    tile("Est. cost", sum("d"), usd(sum("d")), 0, "") + '</div>';
+}
+
+/* ---------- targets ---------- */
+const CALC_IDS = ["u","sex","age","h1","h2","w","act","goal","meals"];
+const ADJ = {cut:-0.2, recomp:-0.1, maintain:0, bulk:0.1, mass:0.15};
+const PPL = {cut:1, recomp:1, maintain:0.8, bulk:0.9, mass:0.9};   // g protein per lb
+function setUnitLabels(){
+  const si = $("u").value === "si";
+  $("hLabel").textContent = si ? "Height cm" : "Height ft / in";
+  $("wLabel").textContent = si ? "Weight kg" : "Weight lb";
+  $("h2").style.display = si ? "none" : "";
+}
+function calc(){
+  const si = $("u").value === "si";
+  const age = +$("age").value, wv = +$("w").value, h1 = +$("h1").value, h2 = +$("h2").value || 0;
+  const kg = si ? wv : wv / 2.2046, cm = si ? h1 : (h1 * 12 + h2) * 2.54;
+  const ok = age >= 16 && age <= 90 && kg >= 35 && kg <= 230 && cm >= 130 && cm <= 230;
+  if(!ok){
+    T = null;
+    $("tgtOut").innerHTML = '<div class="tile"><span class="mono">Enter your age (16 to 90), height and weight to see targets.</span></div>';
+    $("perMeal").textContent = ""; $("fit").disabled = true; renderTotals(); return;
+  }
+  const male = $("sex").value === "m", goal = $("goal").value, meals = +$("meals").value;
+  const bmr = 10 * kg + 6.25 * cm - 5 * age + (male ? 5 : -161);
+  const floor = male ? 1500 : 1200;
+  let k = Math.round(bmr * +$("act").value * (1 + ADJ[goal]) / 10) * 10;
+  const floored = k < floor; if(floored) k = floor;
+  const p = Math.round(kg * 2.2046 * PPL[goal]);
+  const f = Math.round(k * 0.25 / 9);
+  const c = Math.max(0, Math.round((k - p * 4 - f * 9) / 4));
+  const fb = Math.round(k / 1000 * 14);
+  T = {k:k, p:p, c:c, f:f, fb:fb, meals:meals};
+  const t = (label, val, unit, lead) => '<div class="tile' + (lead ? ' lead' : '') + '"><span class="mono dim">' + label + '</span><b>' + val + '</b><span class="mono dim">' + unit + '</span></div>';
+  $("tgtOut").innerHTML = t("Protein", p, "g a day", true) + t("Calories", k.toLocaleString(), "kcal a day") +
+    t("Carbs", c, "g a day") + t("Fat", f, "g a day") + t("Fiber", fb, "g a day");
+  $("perMeal").textContent = "Across " + meals + " meals that is about " + Math.round(p / meals) + " g protein and " +
+    Math.round(k / meals) + " kcal a meal." + (floored ? " Calories are held at a " + floor.toLocaleString() + " kcal floor. Going lower needs a professional's supervision." : "");
+  $("fit").disabled = false;
+  renderTotals();
+  try { const o = {}; CALC_IDS.forEach(id => o[id] = $(id).value); localStorage.setItem("build-calc", JSON.stringify(o)); } catch(e){}
+}
+$("u").addEventListener("change", () => {
+  const si = $("u").value === "si", h1 = +$("h1").value || 0, h2 = +$("h2").value || 0, wv = +$("w").value || 0;
+  if(si){ $("h1").value = Math.round((h1 * 12 + h2) * 2.54); $("w").value = Math.round(wv / 2.2046); }
+  else { const inch = Math.round(h1 / 2.54); $("h1").value = Math.floor(inch / 12); $("h2").value = inch % 12; $("w").value = Math.round(wv * 2.2046); }
+  setUnitLabels(); calc();
+});
+CALC_IDS.filter(id => id !== "u").forEach(id => $(id).addEventListener("input", calc));
+$("calc").addEventListener("submit", e => e.preventDefault());
+$("fit").addEventListener("click", () => {
+  if(!T) return;
+  const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
+  F = Object.assign({}, NONE, {
+    pMin: clamp(Math.floor(T.p / T.meals * 0.85 / 5) * 5, 20, 40),
+    kMax: clamp(Math.ceil(T.k / T.meals / 10) * 10, 300, 650)});
+  preset = null; $("q").value = ""; $("meal").value = "";
+  syncDials(); renderPresets(); renderGrid();
+  $("recipes").scrollIntoView();
+});
+
+/* ---------- build my day ---------- */
+function buildDay(){
+  const msg = $("bdMsg");
+  if(!T){ msg.textContent = "Set your daily targets in section 01 first, then build your day."; return; }
+  const slots = ["Breakfast","Lunch","Dinner"];
+  for(let i = 3; i < T.meals; i++) slots.push("Snack");
+  if($("bdDessert").checked){ if(T.meals > 3) slots[slots.length - 1] = "Dessert"; else slots.push("Dessert"); }
+  const pools = {};
+  slots.forEach(m => { pools[m] = R.filter(r => r.meal === m && dietOK(r)); });
+  if(slots.some(m => !pools[m].length)){ msg.textContent = "Not enough recipes fit that diet filter to fill a day. Set the diet filter to Any diet and try again."; return; }
+  let best = null;
+  for(let n = 0; n < 800; n++){
+    const picks = slots.map(m => pools[m][Math.floor(Math.random() * pools[m].length)]);
+    if(new Set(picks).size !== picks.length) continue;
+    [1, 1.5, 2].forEach(q => {
+      let P = 0, K = 0;
+      picks.forEach((r,i) => { const m = i < 3 ? q : 1; P += r.p * m; K += r.k * m; });
+      const err = Math.abs(P - T.p) / T.p + Math.abs(K - T.k) / T.k;
+      if(!best || err < best.err) best = {err:err, picks:picks, q:q, P:P, K:K};
+    });
+  }
+  if(!best){ msg.textContent = "Could not build a day from that filter. Try Any diet."; return; }
+  list = {};
+  best.picks.forEach((r,i) => { list[r.id] = {c:[], q: i < 3 ? best.q : 1}; });
+  saveList(); renderList(); renderGrid(true); renderDessert();
+  msg.textContent = "Day built: " + best.picks.length + " meals at " + Math.round(best.P / T.p * 100) + "% of your protein and " +
+    Math.round(best.K / T.k * 100) + "% of your calories." +
+    (best.K < T.k * 0.9 ? " These recipes run lean, so you are about " + (Math.round((T.k - best.K) / 10) * 10).toLocaleString() + " kcal short. Close the gap with bigger carb portions from Smart swaps, or add a snack." : "") +
+    " Not feeling it? Press again for a new day.";
+}
+$("buildDay").addEventListener("click", buildDay);
+$("diet").addEventListener("change", () => renderGrid());
+
+/* ---------- motion ---------- */
+const calm = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+function countUp(el, to, fmt){
+  if(calm || typeof requestAnimationFrame !== "function"){ el.textContent = fmt(to); return; }
+  const t0 = performance.now();
+  (function step(now){
+    const k = Math.min(1, (now - t0) / 900);
+    el.textContent = fmt(to * (1 - Math.pow(1 - k, 3)));
+    if(k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+if(typeof window !== "undefined") window.addEventListener("scroll", () => {
+  const h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+  $("prog").style.transform = "scaleX(" + (max > 0 ? h.scrollTop / max : 0) + ")";
+}, {passive:true});
+(function(){
+  const lines = ["Eat big","Lift heavy","Protein first","Fewer excuses","Cook it yourself","Weigh the rice","Sleep like it is your job","Dessert is allowed","Read the label","Then build"];
+  const half = lines.map(l => "<span>" + l + "</span>").join("");
+  $("ticker").innerHTML = half + half;
+})();
+
+/* ---------- events ---------- */
+function resetAll(){
+  F = Object.assign({}, NONE); preset = null;
+  $("q").value = ""; $("meal").value = "";
+  syncDials(); renderPresets(); renderGrid();
+}
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-preset],[data-add],[data-remove],[data-reset],[data-more],[data-q],[data-crave]");
+  if(!el) return;
+  if(el.dataset.preset){ applyPreset(el.dataset.preset); }
+  else if(el.dataset.add){
+    const id = el.dataset.add;
+    if(list[id]) delete list[id]; else list[id] = {c:[], q:1};
+    saveList(); renderList();
+    const on = !!list[id];
+    el.setAttribute("aria-pressed", on);
+    el.firstChild.textContent = on ? "On shopping list" : "Add to shopping list";
+    el.lastChild.textContent = on ? "✓" : "+";
+  }
+  else if(el.dataset.remove){ delete list[el.dataset.remove]; saveList(); renderList(); renderGrid(true); renderDessert(); }
+  else if(el.dataset.q){
+    const it = list[el.dataset.q]; if(!it) return;
+    it.q = Math.max(0.5, Math.min(4, it.q + 0.5 * +el.dataset.dir)); saveList(); renderList();
+  }
+  else if(el.dataset.crave){ crave = el.dataset.crave; renderDessert(); }
+  else if(el.dataset.more){ shown += PAGE; renderGrid(true); }
+  else if(el.dataset.reset){ resetAll(); }
+});
+document.addEventListener("change", e => {
+  const el = e.target;
+  if(!el.dataset || !el.dataset.check) return;
+  const it = list[el.dataset.check]; const arr = it && it.c; const i = +el.dataset.i;
+  if(!arr) return;
+  const at = arr.indexOf(i);
+  if(el.checked && at === -1) arr.push(i);
+  if(!el.checked && at > -1) arr.splice(at, 1);
+  saveList();
+});
+$("q").addEventListener("input", () => renderGrid());
+$("meal").addEventListener("change", () => renderGrid());
+$("sort").addEventListener("change", () => renderGrid());
+$("reset").addEventListener("click", resetAll);
+$("clearList").addEventListener("click", () => { list = {}; saveList(); renderList(); renderGrid(true); renderDessert(); });
+$("copyList").addEventListener("click", () => {
+  const btn = $("copyList");
+  const ids = Object.keys(list);
+  if(!ids.length){ btn.textContent = "Nothing to copy yet"; setTimeout(() => btn.textContent = "Copy list", 1600); return; }
+  const text = ids.map(id => { const r = R.find(x => x.id === id);
+    return r.n.toUpperCase() + (list[id].q !== 1 ? " (" + list[id].q + " servings, scale the amounts)" : "") + "\n" + r.ing.map(i => "- " + i).join("\n"); }).join("\n\n");
+  const done = ok => { btn.textContent = ok ? "Copied" : "Copy failed. Select the list and copy it by hand."; setTimeout(() => btn.textContent = "Copy list", 2200); };
+  try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch(err){ done(false); }
+});
+
+/* ---------- boot ---------- */
+const avg = k => R.reduce((s,r) => s + (k === "d" ? r.d / r.serves : r[k]), 0) / R.length;
+countUp($("statRecipes"), R.length, v => Math.round(v));
+countUp($("statProtein"), avg("p"), v => Math.round(v));
+countUp($("statKcal"), avg("k"), v => Math.round(v));
+countUp($("statCost"), avg("d"), usd);
+$("statusCount").textContent = MAINS.length + " meals and " + SWEETS.length + " desserts loaded";
+try { const o = JSON.parse(localStorage.getItem("build-calc") || "null");
+  if(o) CALC_IDS.forEach(id => { if(o[id] != null) $(id).value = o[id]; }); } catch(e){}
+setUnitLabels();
+syncDials(); renderPresets(); renderGrid(); renderDessert(); renderList(); calc();
+</script>
+</body>
+</html>
